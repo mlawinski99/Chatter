@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Chatter.Shared.DomainTypes\Chatter.Shared.DomainTypes.csproj" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
     </ItemGroup>
 
 </Project>
