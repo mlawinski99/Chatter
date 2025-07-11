@@ -41,4 +41,13 @@ public static class EntityTypeBuilderExtensions
 
         return builder;
     }
+    
+    public static EntityTypeBuilder<TEntity> WithVersionable<TEntity>(this EntityTypeBuilder<TEntity> builder)
+        where TEntity : Entity, IVersionable
+    {
+        builder.Property(e => e.VersionId);
+        builder.Property(e => e.VersionGroupId);
+
+        return builder;
+    }
 }
