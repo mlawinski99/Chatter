@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Npgsql;
 
 namespace Chatter.Migrator;
 
@@ -21,20 +21,21 @@ public class Migrator(string connectionString, string scriptPath)
             Console.WriteLine($"Running {fileName}...");
 
             var script = File.ReadAllText(file);
-            using var sqlConnection = new SqlConnection(connectionString);
+            using var sqlConnection = new NpgsqlConnection(connectionString);
             await sqlConnection.OpenAsync();
 
             using var transaction = sqlConnection.BeginTransaction();
 
             try
             {
-                using (var sqlCommand = new SqlCommand(script, sqlConnection, transaction))
+                using (var sqlCommand = new NpgsqlCommand(script, sqlConnection, transaction))
                 {
                     await sqlCommand.ExecuteNonQueryAsync();
                 }
 
-                using (var command = new SqlCommand(
-                           "INSERT INTO dbo.MigrationHistory (ScriptName) VALUES (@name)", sqlConnection, transaction))
+                using (var command = new NpgsqlCommand(
+                           @"INSERT INTO public.""MigrationHistory"" (""ScriptName"") VALUES (@name)", 
+                           sqlConnection, transaction))
                 {
                     command.Parameters.AddWithValue("@name", fileName);
                     await command.ExecuteNonQueryAsync();
@@ -47,6 +48,7 @@ public class Migrator(string connectionString, string scriptPath)
             {
                 await transaction.RollbackAsync();
                 Console.WriteLine($"Error executing {fileName}: {ex.Message}");
+                throw;
             }
         }
 
@@ -55,29 +57,27 @@ public class Migrator(string connectionString, string scriptPath)
 
     private void EnsureMigrationTable()
     {
-        using var sqlConnection = new SqlConnection(connectionString);
+        using var sqlConnection = new NpgsqlConnection(connectionString);
         sqlConnection.Open();
 
         var cmdText = @"
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='dbo.MigrationHistory' AND xtype='U')
-            BEGIN
-                CREATE TABLE dbo.MigrationHistory (
-                    Id INT IDENTITY PRIMARY KEY,
-                    ScriptName NVARCHAR(255) NOT NULL UNIQUE,
-                    ExecutedOn DATETIME NOT NULL DEFAULT GETDATE()
-                );
-            END";
-        using var cmd = new SqlCommand(cmdText, sqlConnection);
+            CREATE TABLE IF NOT EXISTS public.""MigrationHistory"" (
+                ""Id"" SERIAL PRIMARY KEY,
+                ""ScriptName"" VARCHAR(255) NOT NULL UNIQUE,
+                ""ExecutedOn"" TIMESTAMP NOT NULL DEFAULT NOW()
+            );
+        ";
+        using var cmd = new NpgsqlCommand(cmdText, sqlConnection);
         cmd.ExecuteNonQuery();
     }
 
     private HashSet<string> GetExecutedScriptNames()
     {
         var result = new HashSet<string>();
-        using var conn = new SqlConnection(connectionString);
+        using var conn = new NpgsqlConnection(connectionString);
         conn.Open();
 
-        var cmd = new SqlCommand("SELECT ScriptName FROM dbo.MigrationHistory", conn);
+        var cmd = new NpgsqlCommand(@"SELECT ""ScriptName"" FROM public.""MigrationHistory""", conn);
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
         {

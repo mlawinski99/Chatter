@@ -1,6 +1,8 @@
-CREATE TABLE chat.Chats (
-                            Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-                            Type VARCHAR(20) NOT NULL,
-                            CreatedAt DATETIME2 NOT NULL,
-                            UpdatedAt DATETIME2 NULL
+CREATE SCHEMA IF NOT EXISTS chat;
+
+CREATE TABLE chat."Chats" (
+                              "Id" UUID NOT NULL PRIMARY KEY,
+                              "Type" VARCHAR(20) NOT NULL,
+                              "CreatedAt" TIMESTAMP NOT NULL,
+                              "UpdatedAt" TIMESTAMP NULL
 );

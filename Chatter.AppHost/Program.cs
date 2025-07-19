@@ -17,11 +17,10 @@ var keycloakGateway = builder.AddProject<Projects.Chatter_Keycloak_Gateaway>("ke
     .WithHttpEndpoint(name: "keycloakGateaway", port: 7070);
 
 var messagesGateway = builder.AddProject<Projects.Chatter_Messages_Gateaway>("messagesGateaway")
-    .WithReference(keycloak)
     .WithHttpEndpoint(name: "messagesGateaway", port: 7071);
 
 var messagesApi = builder.AddProject<Projects.Chatter_Messages_Presentation>("messagesApi")
-    .WithReference(keycloak)
+    .WithReference(postgres)
     .WithHttpEndpoint(name: "messagesApi", port: 7072);
 
 builder.Build().Run();
