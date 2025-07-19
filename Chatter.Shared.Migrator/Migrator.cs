@@ -42,7 +42,7 @@ public class Migrator(string connectionString, string scriptPath)
                 }
 
                 await transaction.CommitAsync();
-                Console.WriteLine($"{fileName} executed successfully.");
+                    Console.WriteLine($"{fileName} executed successfully.");
             }
             catch (Exception ex)
             {

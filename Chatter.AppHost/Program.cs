@@ -5,6 +5,7 @@ var password = builder.AddParameter("password", "postgres", secret: true);
 
 var postgres = builder
     .AddPostgres("postgres", username, password, 5432)
+    .WithDataVolume(isReadOnly: false)
     .AddDatabase("MessagesDb");
 
 var keycloak = builder
@@ -19,8 +20,18 @@ var keycloakGateway = builder.AddProject<Projects.Chatter_Keycloak_Gateaway>("ke
 var messagesGateway = builder.AddProject<Projects.Chatter_Messages_Gateaway>("messagesGateaway")
     .WithHttpEndpoint(name: "messagesGateaway", port: 7071);
 
+var elasticsearch = builder
+    .AddElasticsearch("elasticsearch", port: 9200)
+    .WithEnvironment("xpack.security.enabled", "false");
+
+var kibana = builder
+    .AddContainer("kibana", "kibana", "8.15.3")
+    .WithReference(elasticsearch)
+    .WithEndpoint(5601, 5601);
+
 var messagesApi = builder.AddProject<Projects.Chatter_Messages_Presentation>("messagesApi")
     .WithReference(postgres)
+    .WithReference(elasticsearch)
     .WithHttpEndpoint(name: "messagesApi", port: 7072);
 
 builder.Build().Run();
