@@ -4,22 +4,25 @@ namespace Chatter.Shared.CQRS;
 
 public class RequestDispatcher(IServiceProvider serviceProvider) : IRequestDispatcher
 {
-    public async Task<TResult> Dispatch<TRequest, TResult>(TRequest request) where TRequest : IRequest<TResult>
+    public async Task<TResult> Dispatch<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
     {
+        using var scope = serviceProvider.CreateScope();
+        var provider = scope.ServiceProvider;
+
         if (request is ICommand<TResult> command)
         {
-            var handler = serviceProvider
-                .GetRequiredService<ICommandHandler<ICommand<TResult>, TResult>>();
-            return await handler.Handle(command, CancellationToken.None);
+            var handlerType = typeof(ICommandHandler<,>).MakeGenericType(command.GetType(), typeof(TResult));
+            dynamic handler = provider.GetRequiredService(handlerType);
+            return await handler.Handle((dynamic)command, cancellationToken);
         }
 
         if (request is IQuery<TResult> query)
         {
-            var handler = serviceProvider
-                .GetRequiredService<IQueryHandler<IQuery<TResult>, TResult>>();
-            return await handler.Handle(query, CancellationToken.None);
+            var handlerType = typeof(IQueryHandler<,>).MakeGenericType(query.GetType(), typeof(TResult));
+            dynamic handler = provider.GetRequiredService(handlerType);
+            return await handler.Handle((dynamic)query, cancellationToken);
         }
 
-        throw new InvalidOperationException($"Unknown request type: {typeof(TRequest).Name}");
+        throw new InvalidOperationException($"Unknown request type: {request.GetType().Name}");
     }
 }

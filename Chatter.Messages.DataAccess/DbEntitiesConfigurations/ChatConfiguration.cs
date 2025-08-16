@@ -13,7 +13,7 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
         builder
             .WithId()
             .WithAuditable()
-            .ToTable("chat.Chats");
+            .ToTable("Chats", "chat");
         
         builder.Property(x => x.Type)
             .HasConversion(

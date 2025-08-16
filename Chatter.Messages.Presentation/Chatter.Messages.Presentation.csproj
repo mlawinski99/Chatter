@@ -17,6 +17,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Chatter.Messages.Application\Chatter.Messages.Application.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.CQRS\Chatter.Shared.CQRS.csproj" />
       <ProjectReference Include="..\Chatter.Shared.Migrator\Chatter.Shared.Migrator.csproj" />
     </ItemGroup>
 

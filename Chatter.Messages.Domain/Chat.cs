@@ -11,7 +11,7 @@ public class Chat : AggregateRoot, IAuditable
     
     private readonly List<ChatMember> _members = new();
     public IReadOnlyCollection<ChatMember> Members => _members.AsReadOnly();
-
+    private Chat() { } // for EF
     public Chat(ChatType type)
     {
         Type = type;

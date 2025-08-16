@@ -2,6 +2,6 @@ namespace Chatter.Shared.DomainTypes;
 
 public interface IAuditableWithUser : IAuditable
 {
-    string CreatedBy { get; set; }
-    string ModifiedBy { get; set; }
+    Guid? CreatedBy { get; set; }
+    Guid? ModifiedBy { get; set; }
 }

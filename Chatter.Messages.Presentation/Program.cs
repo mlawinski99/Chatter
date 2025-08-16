@@ -1,4 +1,9 @@
+using System.Reflection;
+using Chatter.MessagesDataAccess;
 using Chatter.Migrator;
+using Chatter.Shared.CQRS;
+using Chatter.Shared.DataAccessTypes;
+using Chatter.Shared.Encryption;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +19,14 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddLogging();
+var assembly = Assembly.Load("Chatter.Messages.Application");
+builder.Services.AddInfrastructure();
+builder.Services.AddSharedDataAccessTypes();
+builder.Services.AddMessagesDataAccess(builder.Configuration);
 
+builder.Services.AddCqrs(assembly);
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -26,8 +38,6 @@ using (var scope = app.Services.CreateScope())
     var migrator = new Migrator(connectionString, absoluteScriptPath); // scriptPath optional
     await migrator.ExecutePendingMigrationsAsync();
 }
-
-builder.Services.AddLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

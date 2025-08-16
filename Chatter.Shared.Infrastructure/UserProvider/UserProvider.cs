@@ -5,7 +5,7 @@ namespace Chatter.Shared.DataAccessTypes;
 
 public class UserProvider(IHttpContextAccessor httpContextAccessor) : IUserProvider
 {
-    public string UserId
+    public Guid? UserId
     {
         get
         {
@@ -13,7 +13,7 @@ public class UserProvider(IHttpContextAccessor httpContextAccessor) : IUserProvi
             if (user == null)
                 return null;
 
-            return user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         }
     }
 }

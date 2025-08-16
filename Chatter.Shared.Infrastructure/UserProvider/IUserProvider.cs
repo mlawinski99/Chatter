@@ -4,5 +4,5 @@ namespace Chatter.Shared.DataAccessTypes;
 
 public interface IUserProvider
 {
-    string UserId { get; }
+    Guid? UserId { get; }
 }
