@@ -2,10 +2,9 @@
 
 public class Result<T>
 {
-    public readonly bool IsSuccess;
-    public bool IsFailure => !IsSuccess;
-    public readonly T? Data;
-    public readonly string? Error;
+    public bool IsSuccess { get; private set; }
+    public T? Data { get; private set; }
+    public string? Error { get; private set; }
 
     private Result(bool isSuccess, T? data, string? error)
     {

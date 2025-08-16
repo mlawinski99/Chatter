@@ -26,7 +26,7 @@ public class SendMessage : ICommandHandler<SendMessage.SendMessageCommand, Resul
             .FirstOrDefaultAsync(x => x.Id == model.ChatId, cancellationToken);
 
         if (chat is null)
-            Result<object?>.Failure("Chat not found");
+            return Result<object?>.Failure("Chat not found");
 
         var message = new MessagesDomain.Message(
             new MessageContent(model.Content),
