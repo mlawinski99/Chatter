@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chatter.Messages.Application.Message.Commands;
 
-public class SendMessage : ICommandHandler<SendMessage.SendMessageCommand, Result<object?>>
+public class SendMessage : ICommandHandler<SendMessage.SendMessageCommand, Result>
 {
-    public record SendMessageCommand(Guid ChatId, string Content) : ICommand<Result<object?>>;
+    public record SendMessageCommand(Guid ChatId, string Content) : ICommand<Result>;
  
     private readonly ChatDbContext _chatDbContext;
     private readonly IUserProvider _userProvider;
@@ -20,13 +20,13 @@ public class SendMessage : ICommandHandler<SendMessage.SendMessageCommand, Resul
         _chatDbContext = chatDbContext;
         _userProvider = userProvider;
     }
-    public async Task<Result<object?>> Handle(SendMessageCommand model, CancellationToken cancellationToken)
+    public async Task<Result> Handle(SendMessageCommand model, CancellationToken cancellationToken)
     {
         var chat = await _chatDbContext.Chats
             .FirstOrDefaultAsync(x => x.Id == model.ChatId, cancellationToken);
 
         if (chat is null)
-            return Result<object?>.Failure("Chat not found");
+            return Result.Failure("Chat not found");
 
         var message = new MessagesDomain.Message(
             new MessageContent(model.Content),
@@ -36,6 +36,6 @@ public class SendMessage : ICommandHandler<SendMessage.SendMessageCommand, Resul
         await _chatDbContext.Messages.AddAsync(message, cancellationToken);
         await _chatDbContext.SaveChangesAsync(cancellationToken);
         
-        return Result<object?>.Success();
+        return Result.Success;
     }
 }

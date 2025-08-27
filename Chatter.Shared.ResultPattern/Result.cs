@@ -1,10 +1,18 @@
 ﻿namespace Chatter.Shared.ResultPattern;
 
-public class Result<T>
+
+public class Result
 {
-    public bool IsSuccess { get; private set; }
+    public bool IsSuccess { get; protected set; }
+    public string? Error { get; protected set; }
+
+    public static Result Success => new() { IsSuccess = true };
+    public static Result Failure(string error) => new() { IsSuccess = false, Error = error };
+}
+
+public class Result<T> : Result
+{
     public T? Data { get; private set; }
-    public string? Error { get; private set; }
 
     private Result(bool isSuccess, T? data, string? error)
     {

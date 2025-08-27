@@ -2,12 +2,14 @@ using Chatter.Messages.Application.Message.Commands;
 using Chatter.MessagesService.Models;
 using Chatter.Shared.CQRS;
 using Chatter.Shared.ResultPattern;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chatter.MessagesService.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class MessagesController : ControllerBase
 {
     private readonly IRequestDispatcher _requestDispatcher;
@@ -18,7 +20,7 @@ public class MessagesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<Result<object?>> SendMessage(SendMessageRequest model)
+    public async Task<Result> SendMessage(SendMessageRequest model)
     { 
         var request = new SendMessage.SendMessageCommand(model.ChatId, model.Content);
 
