@@ -5,6 +5,8 @@ namespace Chatter.MessagesDomain;
 //@TODO publish event after keycloak change user outbox, sync with keycloak
 public class User : Entity, IAuditable, ISoftDeletable
 {
+    public Guid Id { get; set; }
+    public Guid KeycloakId { get; set; }
     [Encryptable]
     public string UserName { get; set; }
     [Encryptable]

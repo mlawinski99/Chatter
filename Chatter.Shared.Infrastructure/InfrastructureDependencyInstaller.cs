@@ -1,4 +1,5 @@
 using Chatter.Shared.DataAccessTypes;
+using Chatter.Shared.Encryption.JsonSerializable;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Chatter.Shared.Encryption;
@@ -9,6 +10,7 @@ public static class InfrastructureDependencyInstaller
     {
         services.AddSingleton<IEncryptor, AesEncryptor>();
         services.AddScoped<IUserProvider, UserProvider>();
+        services.AddScoped<IJsonSerializer, JsonSerializer>();
 
         return services;
     }

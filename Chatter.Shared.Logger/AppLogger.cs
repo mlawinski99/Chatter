@@ -2,11 +2,11 @@
 
 namespace Chatter.Shared.Logger;
 
-public class Logger<T> : ILogger<T>
+public class AppLogger<T> : IAppLogger<T>
 {
-    private readonly Microsoft.Extensions.Logging.ILogger<T> _logger;
+    private readonly ILogger<T> _logger;
 
-    public Logger(ILoggerFactory loggerFactory)
+    public AppLogger(ILoggerFactory loggerFactory)
     {
         _logger = loggerFactory.CreateLogger<T>();
     }

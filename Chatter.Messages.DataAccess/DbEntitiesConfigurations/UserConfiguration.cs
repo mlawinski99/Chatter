@@ -15,6 +15,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .WithSoftDeletable()
             .ToTable("dbo.Users");
         
+        builder.Property(x => x.KeycloakId);
         builder.Property(x => x.UserName);
         builder.Property(x => x.Email);
     }

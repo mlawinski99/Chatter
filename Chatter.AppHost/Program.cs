@@ -5,8 +5,10 @@ var password = builder.AddParameter("password", "postgres", secret: true);
 
 var postgres = builder
     .AddPostgres("postgres", username, password, 5432)
-    .WithDataVolume(isReadOnly: false)
-    .AddDatabase("MessagesDb");
+    .WithDataVolume(isReadOnly: false);
+
+var messagesDb = postgres.AddDatabase("MessagesDb");
+var hangfireDb = postgres.AddDatabase("HangfireDb");
 
 var keycloak = builder
     .AddKeycloak("keycloak", 8080)
@@ -32,6 +34,17 @@ var kibana = builder
 var messagesApi = builder.AddProject<Projects.Chatter_Messages_Presentation>("messagesApi")
     .WithReference(postgres)
     .WithReference(elasticsearch)
-    .WithHttpEndpoint(name: "messagesApi", port: 7072);
+    .WithHttpEndpoint(name: "messagesApi", port: 7072)
+    .WaitFor(elasticsearch)
+    .WaitFor(messagesDb);
+
+var syncUsersJob = builder.AddProject<Projects.Chatter_SyncKeycloakEventsJob>("syncUsersJob")
+    .WithReference(hangfireDb)
+    .WithReference(messagesDb)
+    .WithReference(elasticsearch)
+    .WaitFor(elasticsearch)
+    .WaitFor(hangfireDb)
+    .WaitFor(messagesDb);
+
 
 builder.Build().Run();

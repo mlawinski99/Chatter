@@ -21,6 +21,7 @@
       <ProjectReference Include="..\Chatter.Keycloak.Gateaway\Chatter.Keycloak.Gateaway.csproj" />
       <ProjectReference Include="..\Chatter.Messages.Gateaway\Chatter.Messages.Gateaway.csproj" />
       <ProjectReference Include="..\Chatter.Messages.Presentation\Chatter.Messages.Presentation.csproj" />
+      <ProjectReference Include="..\Chatter.SyncKeycloakEventsJob\Chatter.SyncKeycloakEventsJob.csproj" />
     </ItemGroup>
 
 </Project>
