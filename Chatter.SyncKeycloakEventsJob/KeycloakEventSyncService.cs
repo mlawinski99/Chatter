@@ -19,12 +19,12 @@ public class KeycloakEventSyncService
     private readonly string _requestUrl;
     private readonly string _tokenUrl;
     
-    public KeycloakEventSyncService(HttpClient httpClient, 
+    public KeycloakEventSyncService(IHttpClientFactory httpClientFactory, 
         KeycloakConfig config,
         IAppLogger<KeycloakEventSyncService> logger,
         IJsonSerializer jsonSerializer)
     {
-        _httpClient = httpClient;
+        _httpClient = httpClientFactory.CreateClient();
         _config = config;
         _logger = logger;
         _jsonSerializer = jsonSerializer;
