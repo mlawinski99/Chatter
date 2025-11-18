@@ -1,4 +1,5 @@
-﻿using Chatter.Shared.DomainTypes;
+﻿using Chatter.MessagesDomain.Events;
+using Chatter.Shared.DomainTypes;
 
 namespace Chatter.MessagesDomain;
 
@@ -23,5 +24,6 @@ public class Message : AggregateRoot, IAuditableWithUser, ISoftDeletable, IVersi
         Content = content;
         Sender = sender;
         Chat = chat;
+        AddDomainEvent(new MessageCreated(chat.Id, content.Text, sender.Id));
     }
 }

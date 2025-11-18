@@ -7,7 +7,7 @@ public static class DataAccessTypesDependencyInstaller
 {
     public static IServiceCollection AddSharedDataAccessTypes(this IServiceCollection services)
     {
-        services.AddScoped<IDateTimeProvider, DateTimeProvider>();
+        services.AddDateProvider();
         services.AddScoped<IInterceptor, EncryptableInterceptor>();
         services.AddScoped<IInterceptor, VersionableInterceptor>();
         services.AddScoped<IInterceptor, AuditableInterceptor>();

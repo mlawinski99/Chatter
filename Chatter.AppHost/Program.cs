@@ -10,6 +10,10 @@ var postgres = builder
 var messagesDb = postgres.AddDatabase("MessagesDb");
 var hangfireDb = postgres.AddDatabase("HangfireDb");
 
+var kafka = builder
+    .AddKafka("kafka");
+
+
 var keycloak = builder
     .AddKeycloak("keycloak", 8080)
     .WithDataVolume()
@@ -34,9 +38,11 @@ var kibana = builder
 var messagesApi = builder.AddProject<Projects.Chatter_Messages_Presentation>("messagesApi")
     .WithReference(postgres)
     .WithReference(elasticsearch)
+    .WithReference(kafka)
     .WithHttpEndpoint(name: "messagesApi", port: 7072)
     .WaitFor(elasticsearch)
-    .WaitFor(messagesDb);
+    .WaitFor(messagesDb)
+    .WaitFor(kafka);
 
 var syncUsersJob = builder.AddProject<Projects.Chatter_SyncKeycloakEventsJob>("syncUsersJob")
     .WithReference(hangfireDb)

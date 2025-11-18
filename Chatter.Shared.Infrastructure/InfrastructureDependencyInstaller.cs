@@ -8,6 +8,7 @@ public static class InfrastructureDependencyInstaller
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
+        // @TODO split into multiple dll
         services.AddSingleton<IEncryptor, AesEncryptor>();
         services.AddScoped<IUserProvider, UserProvider>();
         services.AddScoped<IJsonSerializer, JsonSerializer>();

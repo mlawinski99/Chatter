@@ -8,8 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Chatter.Shared.DateTimeProvider\Chatter.Shared.DateTimeProvider.csproj" />
       <ProjectReference Include="..\Chatter.Shared.DomainTypes\Chatter.Shared.DomainTypes.csproj" />
       <ProjectReference Include="..\Chatter.Shared.Infrastructure\Chatter.Shared.Infrastructure.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.Outbox\Chatter.Shared.Outbox.csproj" />
     </ItemGroup>
 
     <ItemGroup>

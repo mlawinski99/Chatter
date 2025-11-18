@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Chatter.OutboxService</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Chatter.Shared.DateTimeProvider\Chatter.Shared.DateTimeProvider.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.Logger\Chatter.Shared.Logger.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.KafkaProducer\Chatter.Shared.KafkaProducer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
+    </ItemGroup>
+
+</Project>

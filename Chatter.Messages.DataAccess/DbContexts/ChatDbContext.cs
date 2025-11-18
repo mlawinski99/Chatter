@@ -1,6 +1,7 @@
 using Chatter.MessagesDataAccess.DbEntitiesConfigurations;
 using Chatter.MessagesDomain;
 using Chatter.Shared.DataAccessTypes;
+using Chatter.Shared.Encryption.JsonSerializable;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -14,7 +15,8 @@ public class ChatDbContext : BaseDbContext
     public DbSet<User> Users { get; set; }
     public DbSet<KeycloakAdminEvent> KeycloakAdminEvents { get; set; }
     public ChatDbContext(DbContextOptions<ChatDbContext> options, 
-        IEnumerable<IInterceptor> interceptors) : base(options, interceptors)
+        IJsonSerializer jsonSerializer,
+        IEnumerable<IInterceptor> interceptors) : base(options, jsonSerializer, interceptors)
     {
     }
 
