@@ -1,4 +1,4 @@
-namespace Chatter.SyncUsersJob;
+namespace Chatter.SyncKeycloakEventsJob;
 
 public static class KeycloakSyncStaticSettings
 {

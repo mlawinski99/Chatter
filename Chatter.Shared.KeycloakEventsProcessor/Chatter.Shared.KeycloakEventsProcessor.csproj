@@ -4,18 +4,18 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>Chatter.MessagesDataAccess</RootNamespace>
+        <RootNamespace>Chatter.Shared.UserEventsProcessor</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Chatter.Messages.Domain\Chatter.Messages.Domain.csproj" />
       <ProjectReference Include="..\Chatter.Shared.Context\Chatter.Shared.Context.csproj" />
       <ProjectReference Include="..\Chatter.Shared.DataAccessTypes\Chatter.Shared.DataAccessTypes.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.KeycloakService\Chatter.Shared.KeycloakService.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5" />
-      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+      <PackageReference Include="Hangfire.Core" Version="1.8.21" />
     </ItemGroup>
 
 </Project>

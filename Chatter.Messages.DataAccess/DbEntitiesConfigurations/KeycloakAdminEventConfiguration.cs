@@ -1,4 +1,5 @@
 using Chatter.MessagesDomain;
+using Chatter.Shared.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

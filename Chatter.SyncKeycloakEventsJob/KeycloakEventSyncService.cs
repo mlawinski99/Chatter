@@ -4,7 +4,8 @@ using System.Text.Json;
 using Chatter.MessagesDomain;
 using Chatter.Shared.Encryption.JsonSerializable;
 using Chatter.Shared.Logger;
-using Chatter.SyncUsersJob.Models;
+using Chatter.SyncKeycloakEvents.DbContexts;
+using Chatter.SyncKeycloakEventsJob;
 using Microsoft.EntityFrameworkCore;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 

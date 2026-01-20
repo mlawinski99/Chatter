@@ -1,4 +1,5 @@
 ﻿using Chatter.MessagesDomain.Events;
+using Chatter.Shared.Domain;
 using Chatter.Shared.DomainTypes;
 
 namespace Chatter.MessagesDomain;

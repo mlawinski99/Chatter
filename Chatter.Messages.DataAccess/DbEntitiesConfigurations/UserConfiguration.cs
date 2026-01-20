@@ -1,5 +1,6 @@
 using Chatter.MessagesDomain;
 using Chatter.Shared.DataAccessTypes;
+using Chatter.Shared.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

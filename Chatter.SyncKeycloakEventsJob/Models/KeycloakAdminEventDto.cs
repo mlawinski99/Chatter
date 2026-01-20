@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
+using Chatter.Shared.Domain;
 
-namespace Chatter.SyncUsersJob.Models;
+namespace Chatter.SyncKeycloakEvents.DbContexts;
 
 public class KeycloakAdminEventDto
 {

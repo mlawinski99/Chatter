@@ -1,7 +1,8 @@
 ﻿using Chatter.Shared.Encryption;
 using Chatter.Shared.Logger;
+using Chatter.SyncKeycloakEvents.DbContexts;
+using Chatter.SyncKeycloakEventsJob;
 using Chatter.SyncUsersJob;
-using Chatter.SyncUsersJob.Models;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,7 @@ var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>(
 recurringJobManager.AddOrUpdate<KeycloakEventSyncService>(
     "keycloak-user-sync-job",
     job => job.SyncUserEventsAsync(),
-    "*/30 * * * * *",  
+    "*/30 * * * * *",  //@TODO move cron to config
     TimeZoneInfo.Utc
 );
 

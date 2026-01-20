@@ -2,6 +2,7 @@ using Chatter.MessagesDataAccess.DbContexts;
 using Chatter.MessagesDomain;
 using Chatter.Shared.CQRS;
 using Chatter.Shared.DataAccessTypes;
+using Chatter.Shared.Domain;
 using Chatter.Shared.ResultPattern;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,4 +1,4 @@
-namespace Chatter.MessagesDomain;
+namespace Chatter.Shared.Domain;
 
 public class KeycloakAdminEvent
 {

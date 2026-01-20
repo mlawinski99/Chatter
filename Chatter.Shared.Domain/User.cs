@@ -1,6 +1,8 @@
-﻿using Chatter.Shared.DomainTypes;
+﻿
 
-namespace Chatter.MessagesDomain;
+using Chatter.Shared.DomainTypes;
+
+namespace Chatter.Shared.Domain;
 
 //@TODO publish event after keycloak change user outbox, sync with keycloak
 public class User : Entity, IAuditable, ISoftDeletable

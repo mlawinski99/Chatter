@@ -1,3 +1,4 @@
+using Chatter.Shared.Domain;
 using Chatter.Shared.DomainTypes;
 
 namespace Chatter.MessagesDomain;

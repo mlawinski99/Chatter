@@ -1,9 +1,8 @@
-using Chatter.MessagesDomain;
-using Chatter.Shared.Encryption.JsonSerializable;
-using Chatter.SyncUsersJob.Models;
+using Chatter.Shared.Domain;
 using Microsoft.EntityFrameworkCore;
+using ConfigurationData = Chatter.MessagesDomain.ConfigurationData;
 
-namespace Chatter.SyncUsersJob;
+namespace Chatter.SyncKeycloakEvents.DbContexts;
 
 public class SyncDbContext : DbContext
 {
