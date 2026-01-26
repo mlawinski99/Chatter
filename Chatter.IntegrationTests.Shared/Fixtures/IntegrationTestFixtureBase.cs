@@ -1,0 +1,35 @@
+using Chatter.IntegrationTests.Shared.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
+namespace Chatter.IntegrationTests.Shared.Fixtures;
+
+public class IntegrationTestFixtureBase
+{
+    protected virtual string PostgresConnectionString { get; set; } = string.Empty;
+
+    public TestDateTimeProvider DateTimeProvider { get; } = new();
+    public TestUserProvider UserProvider { get; } = new();
+
+    public void SetUtcNow(DateTime utcNow) => DateTimeProvider.UtcNow = utcNow;
+    public void SetUserId(Guid? userId) => UserProvider.UserId = userId;
+
+    public virtual TestDbContext CreateDbContext()
+    {
+        var options = new DbContextOptionsBuilder<TestDbContext>()
+            .UseNpgsql(PostgresConnectionString)
+            .Options;
+
+        return new TestDbContext(options, new TestJsonSerializer());
+    }
+
+    public virtual TestDbContext CreateDbContext(params IInterceptor[] interceptors)
+    {
+        var options = new DbContextOptionsBuilder<TestDbContext>()
+            .UseNpgsql(PostgresConnectionString)
+            .AddInterceptors(interceptors)
+            .Options;
+
+        return new TestDbContext(options, new TestJsonSerializer());
+    }
+}

@@ -1,6 +1,5 @@
 using Chatter.Shared.Domain;
 using Microsoft.EntityFrameworkCore;
-using ConfigurationData = Chatter.MessagesDomain.ConfigurationData;
 
 namespace Chatter.SyncKeycloakEvents.DbContexts;
 
@@ -18,8 +17,18 @@ public class SyncDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<ConfigurationData>().HasKey(x => x.Key);
-        modelBuilder.Entity<ConfigurationData>()
-            .Property(x => x.Value);
+        modelBuilder.Entity<ConfigurationData>(entity =>
+        {
+            entity.ToTable("ConfigurationData");
+            entity.HasKey(x => x.Key);
+            entity.Property(x => x.Value);
+        });
+
+        modelBuilder.Entity<KeycloakAdminEvent>(entity =>
+        {
+            entity.ToTable("KeycloakAdminEvents");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).UseIdentityAlwaysColumn();
+        });
     }
 }

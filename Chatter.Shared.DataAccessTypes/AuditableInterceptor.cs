@@ -6,13 +6,21 @@ namespace Chatter.Shared.DataAccessTypes;
 
 public class AuditableInterceptor : SaveChangesInterceptor
 {
-    private readonly IDateTimeProvider _clock;
-    private readonly IUserProvider _user;
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IUserProvider _userProvider;
 
-    public AuditableInterceptor(IDateTimeProvider clock, IUserProvider user)
+    public AuditableInterceptor(IDateTimeProvider dateTimeProvider, IUserProvider userProvider)
     {
-        _clock = clock;
-        _user = user;
+        _dateTimeProvider = dateTimeProvider;
+        _userProvider = userProvider;
+    }
+
+    public override InterceptionResult<int> SavingChanges(
+        DbContextEventData eventData,
+        InterceptionResult<int> result)
+    {
+        ApplyAuditInfo(eventData.Context);
+        return base.SavingChanges(eventData, result);
     }
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
@@ -20,10 +28,13 @@ public class AuditableInterceptor : SaveChangesInterceptor
         InterceptionResult<int> result,
         CancellationToken cancellationToken = default)
     {
-        var context = eventData.Context;
+        ApplyAuditInfo(eventData.Context);
+        return base.SavingChangesAsync(eventData, result, cancellationToken);
+    }
 
-        if (context == null)
-            return new(result);
+    private void ApplyAuditInfo(DbContext? context)
+    {
+        if (context == null) return;
 
         foreach (var entry in context.ChangeTracker.Entries())
         {
@@ -33,22 +44,20 @@ public class AuditableInterceptor : SaveChangesInterceptor
                 {
                     if (entry.State == EntityState.Added)
                     {
-                        auditableWithUser.CreatedBy = _user.UserId;
-                        auditableWithUser.DateCreatedUtc = _clock.UtcNow;
+                        auditableWithUser.CreatedBy = _userProvider.UserId;
+                        auditableWithUser.DateCreatedUtc = _dateTimeProvider.UtcNow;
                     }
 
-                    auditableWithUser.ModifiedBy = _user.UserId;
-                    auditableWithUser.DateModifiedUtc = _clock.UtcNow;
+                    auditableWithUser.ModifiedBy = _userProvider.UserId;
+                    auditableWithUser.DateModifiedUtc = _dateTimeProvider.UtcNow;
                 }
                 else if (entry.Entity is IAuditable auditable)
                 {
                     if (entry.State == EntityState.Added)
-                        auditable.DateCreatedUtc = _clock.UtcNow;
-                    auditable.DateModifiedUtc = _clock.UtcNow;
+                        auditable.DateCreatedUtc = _dateTimeProvider.UtcNow;
+                    auditable.DateModifiedUtc = _dateTimeProvider.UtcNow;
                 }
             }
         }
-
-        return new(result);
     }
 }

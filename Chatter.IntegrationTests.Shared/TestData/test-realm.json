@@ -1,0 +1,75 @@
+{
+  "realm": "test-realm",
+  "enabled": true,
+  "eventsEnabled": true,
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true,
+  "clients": [
+    {
+      "clientId": "test-client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "test-secret",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "username": "testuser",
+      "email": "testuser@test.com",
+      "enabled": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testpassword",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "username": "testUserDelete",
+      "email": "testUserDelete@test.com",
+      "enabled": true
+    },
+    {
+      "username": "service-account-test-client",
+      "enabled": true,
+      "serviceAccountClientId": "test-client",
+      "clientRoles": {
+        "realm-management": [
+          "view-users",
+          "manage-users",
+          "view-events"
+        ]
+      }
+    }
+  ],
+  "roles": {
+    "client": {
+      "test-client": [
+        {
+          "name": "uma_protection",
+          "composite": false
+        }
+      ]
+    },
+    "realm": [
+      {
+        "name": "admin",
+        "composite": false
+      },
+      {
+        "name": "user",
+        "composite": false
+      }
+    ]
+  }
+}

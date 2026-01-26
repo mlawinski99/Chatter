@@ -14,11 +14,24 @@ public class EncryptableInterceptor : SaveChangesInterceptor, IMaterializationIn
         _encryptor = encryptor;
     }
 
-    // Encrypt before save
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
-        var context = eventData.Context;
-        if (context == null) return base.SavingChanges(eventData, result);
+        EncryptEntities(eventData.Context);
+        return base.SavingChanges(eventData, result);
+    }
+
+    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
+        DbContextEventData eventData,
+        InterceptionResult<int> result,
+        CancellationToken cancellationToken = default)
+    {
+        EncryptEntities(eventData.Context);
+        return base.SavingChangesAsync(eventData, result, cancellationToken);
+    }
+
+    private void EncryptEntities(DbContext? context)
+    {
+        if (context == null) return;
 
         foreach (var entry in context.ChangeTracker.Entries())
         {
@@ -27,11 +40,8 @@ public class EncryptableInterceptor : SaveChangesInterceptor, IMaterializationIn
                 EncryptEntity(entry.Entity);
             }
         }
-
-        return base.SavingChanges(eventData, result);
     }
 
-    // Decrypt after fetch
     public object InitializedInstance(MaterializationInterceptionData materializationData, object entity)
     {
         DecryptEntity(entity);

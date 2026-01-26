@@ -1,7 +1,6 @@
 using Chatter.Shared.Context;
 using Chatter.Shared.DataAccessTypes;
 using Chatter.Shared.Domain;
-using Chatter.Shared.Encryption.JsonSerializable;
 using Chatter.Shared.KeycloakService;
 using Chatter.Shared.Logger;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +26,7 @@ public class KeycloakEventProcessor<TContext> where TContext : BaseDbContext, IU
         var events = await _db.KeycloakAdminEvents
             .Where(e => !e.IsProcessed && e.ResourceType == "USER")
             .OrderBy(e => e.Time)
-            .ToListAsync();
+            .ToListAsync();;
 
         var token = await _keycloakService.GetToken();
         // @TODO batch process

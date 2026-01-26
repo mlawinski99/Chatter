@@ -11,8 +11,22 @@ public class VersionableInterceptor : SaveChangesInterceptor
         DbContextEventData eventData,
         InterceptionResult<int> result)
     {
-        var context = eventData.Context;
-        if (context == null) return base.SavingChanges(eventData, result);
+        ApplyVersioning(eventData.Context);
+        return base.SavingChanges(eventData, result);
+    }
+
+    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
+        DbContextEventData eventData,
+        InterceptionResult<int> result,
+        CancellationToken cancellationToken = default)
+    {
+        ApplyVersioning(eventData.Context);
+        return base.SavingChangesAsync(eventData, result, cancellationToken);
+    }
+
+    private void ApplyVersioning(DbContext? context)
+    {
+        if (context == null) return;
 
         var entries = context.ChangeTracker
             .Entries()
@@ -24,28 +38,28 @@ public class VersionableInterceptor : SaveChangesInterceptor
         foreach (var entry in entries)
         {
             var entity = entry.Entity;
-            entry.State = EntityState.Unchanged;
-            
+            var originalId = (entity as Entity)?.Id;
             var cloned = CloneEntity(entity);
 
-            if (cloned is IVersionable)
+            entry.State = EntityState.Unchanged;
+
+            if (cloned is Entity clonedEntity)
             {
-                var versionable = (IVersionable)cloned;
+                clonedEntity.Id = Guid.NewGuid();
+            }
+
+            if (cloned is IVersionable versionable)
+            {
                 versionable.VersionId += 1;
-                versionable.VersionGroupId = versionable.VersionGroupId == null ?
-                    (versionable as Entity).Id :
-                    versionable.VersionGroupId;
+                versionable.VersionGroupId = versionable.VersionGroupId ?? originalId;
             }
 
             context.Add(cloned);
         }
-
-        return base.SavingChanges(eventData, result);
     }
 
     private static object CloneEntity(object original)
     {
-        // @TODO - skip ID during serialization?
         var json = JsonSerializer.Serialize(original);
         return JsonSerializer.Deserialize(json, original.GetType())!;
     }

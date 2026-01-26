@@ -25,6 +25,7 @@
       <ProjectReference Include="..\Chatter.Shared.DomainTypes\Chatter.Shared.DomainTypes.csproj" />
       <ProjectReference Include="..\Chatter.Shared.Infrastructure\Chatter.Shared.Infrastructure.csproj" />
       <ProjectReference Include="..\Chatter.Shared.Domain\Chatter.Shared.Domain.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.KeycloakService\Chatter.Shared.KeycloakService.csproj" />
       <ProjectReference Include="..\Chatter.Shared.Logger\Chatter.Shared.Logger.csproj" />
     </ItemGroup>
 

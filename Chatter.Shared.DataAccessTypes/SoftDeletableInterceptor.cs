@@ -12,30 +12,35 @@ public class SoftDeletableInterceptor : SaveChangesInterceptor
     {
         _dateTimeProvider = dateTimeProvider;
     }
+    public override InterceptionResult<int> SavingChanges(
+        DbContextEventData eventData,
+        InterceptionResult<int> result)
+    {
+        ApplySoftDelete(eventData.Context);
+        return base.SavingChanges(eventData, result);
+    }
+
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
         CancellationToken cancellationToken = default)
     {
-        var context = eventData.Context;
+        ApplySoftDelete(eventData.Context);
+        return base.SavingChangesAsync(eventData, result, cancellationToken);
+    }
 
-        if (context == null)
-            return new(result);
+    private void ApplySoftDelete(DbContext? context)
+    {
+        if (context == null) return;
 
         foreach (var entry in context.ChangeTracker.Entries())
         {
-            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+            if (entry.State == EntityState.Deleted && entry.Entity is ISoftDeletable softDeletable)
             {
-                if (entry.Entity is ISoftDeletable softDeletable && 
-                    entry.State == EntityState.Deleted)
-                {
-                    softDeletable.DateDeletedUtc = _dateTimeProvider.UtcNow;
-                    softDeletable.IsDeleted = true;
-                    entry.State = EntityState.Modified;
-                }
+                softDeletable.DateDeletedUtc = _dateTimeProvider.UtcNow;
+                softDeletable.IsDeleted = true;
+                entry.State = EntityState.Modified;
             }
         }
-
-        return new(result);
     }
 }

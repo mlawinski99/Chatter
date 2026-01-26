@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Chatter.OutboxService;
 using Chatter.Shared.DomainTypes;
 using Chatter.Shared.Encryption.JsonSerializable;
@@ -26,6 +27,28 @@ public abstract class BaseDbContext : DbContext, IUnitOfWork
             optionsBuilder.AddInterceptors(_interceptors);
 
         base.OnConfiguring(optionsBuilder);
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        ApplySoftDeleteQueryFilters(modelBuilder);
+    }
+
+    private static void ApplySoftDeleteQueryFilters(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(ISoftDeletable).IsAssignableFrom(entityType.ClrType))
+            {
+                var parameter = Expression.Parameter(entityType.ClrType, "e");
+                var property = Expression.Property(parameter, nameof(ISoftDeletable.IsDeleted));
+                var filter = Expression.Lambda(Expression.Not(property), parameter);
+
+                entityType.SetQueryFilter(filter);
+            }
+        }
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

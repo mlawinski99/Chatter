@@ -1,38 +1,38 @@
 using Hangfire;
 using System.Net.Http.Headers;
-using System.Text.Json;
-using Chatter.MessagesDomain;
+using Chatter.Shared.Domain;
 using Chatter.Shared.Encryption.JsonSerializable;
+using Chatter.Shared.KeycloakService;
 using Chatter.Shared.Logger;
 using Chatter.SyncKeycloakEvents.DbContexts;
 using Chatter.SyncKeycloakEventsJob;
 using Microsoft.EntityFrameworkCore;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Chatter.SyncUsersJob;
 
 public class KeycloakEventSyncService
 {
     private readonly IAppLogger<KeycloakEventSyncService> _logger;
+    private readonly IKeycloakService _keycloakService;
     private readonly IJsonSerializer _jsonSerializer;
     private readonly HttpClient _httpClient;
     private readonly KeycloakConfig _config;
     private readonly string _requestUrl;
-    private readonly string _tokenUrl;
     
     public KeycloakEventSyncService(IHttpClientFactory httpClientFactory, 
         KeycloakConfig config,
         IAppLogger<KeycloakEventSyncService> logger,
+        IKeycloakService keycloakService,
         IJsonSerializer jsonSerializer)
     {
         _httpClient = httpClientFactory.CreateClient();
         _config = config;
         _logger = logger;
+        _keycloakService = keycloakService;
         _jsonSerializer = jsonSerializer;
 
         _requestUrl = $"{_config.AuthServerUrl}/admin/realms/{_config.Realm}/admin-events" +
                       "?resourceTypes=USER&operationTypes=CREATE&operationTypes=UPDATE&operationTypes=DELETE";
-        _tokenUrl = $"{_config.AuthServerUrl}/realms/{_config.Realm}/protocol/openid-connect/token";
     }
 
     [DisableConcurrentExecution(60)] 
@@ -44,7 +44,7 @@ public class KeycloakEventSyncService
         try
         {
             _logger.LogInformation("Obtaining Keycloak token...");
-            token = await GetToken();
+            token = await _keycloakService.GetToken();
         }
         catch (Exception ex)
         {
@@ -140,21 +140,4 @@ public class KeycloakEventSyncService
             }
         }
     }
-    
-     private async Task<string> GetToken()
-     {
-         var response = await _httpClient.PostAsync(
-             _tokenUrl,
-             new FormUrlEncodedContent(new Dictionary<string, string>
-             {
-                 {"client_id", _config.ClientId},
-                 {"client_secret", _config.ClientSecret},
-                 {"grant_type", "client_credentials"}
-             }));
-
-         response.EnsureSuccessStatusCode();
-         var json = await response.Content.ReadAsStringAsync();
-         var token = JsonSerializer.Deserialize<JsonElement>(json).GetProperty("access_token").GetString();
-         return token;
-     }
 }
