@@ -37,7 +37,7 @@ public class OutboxMessageProcessor<TContext> : IOutboxMessageProcessor<TContext
         {
             try
             {
-                var isProduceSucceded = _producer.Produce(message.Type, message);
+                var isProduceSucceded = await _producer.ProduceAsync(message.Type, message);
 
                 if (isProduceSucceded)
                 {

@@ -1,5 +1,6 @@
+using Chatter.IntegrationTests.KeycloakEventProcessor.Fixtures;
 using Chatter.IntegrationTests.Shared;
-using Chatter.IntegrationTests.Shared.Fixtures;
+using Chatter.IntegrationTests.Shared.Infrastructure;
 using FluentAssertions;
 using Xunit;
 
@@ -33,11 +34,11 @@ public class KeycloakServiceTests : IntegrationTestBase<KeycloakEventSyncTestFix
         var token = await keycloakService.GetToken();
 
         // Act
-        var user = await keycloakService.GetUser(token, KeycloakEventSyncTestFixture.TestUserId);
+        var user = await keycloakService.GetUser(token, KeycloakTestUsersData.TestUserId);
 
         // Assert
         user.Should().NotBeNull();
-        user.Username.Should().Be(KeycloakEventSyncTestFixture.TestUsername);
+        user.Username.Should().Be(KeycloakTestUsersData.TestUsername);
     }
 
     [Fact]
@@ -76,7 +77,7 @@ public class KeycloakServiceTests : IntegrationTestBase<KeycloakEventSyncTestFix
         var token = await keycloakService.GetToken();
 
         // Act
-        var act = () => keycloakService.UpdateUser(token, KeycloakEventSyncTestFixture.TestUserId, "updatedEmail@test.com");
+        var act = () => keycloakService.UpdateUser(token, KeycloakTestUsersData.TestUserId, "updatedEmail@test.com");
 
         // Assert
         await act.Should().NotThrowAsync();
@@ -88,7 +89,7 @@ public class KeycloakServiceTests : IntegrationTestBase<KeycloakEventSyncTestFix
         // Arrange
         var keycloakService = Fixture.CreateKeycloakService();
         var token = await keycloakService.GetToken();
-        var userIdToDelete = KeycloakEventSyncTestFixture.TestUserDeleteId;
+        var userIdToDelete = KeycloakTestUsersData.TestUserDeleteId;
 
         // Act
         var act = () => keycloakService.DeleteUser(token, userIdToDelete);

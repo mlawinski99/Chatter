@@ -1,5 +1,5 @@
+using Chatter.IntegrationTests.KeycloakEventProcessor.Fixtures;
 using Chatter.IntegrationTests.Shared;
-using Chatter.IntegrationTests.Shared.Fixtures;
 using Chatter.IntegrationTests.Shared.Infrastructure;
 using Chatter.Shared.Domain;
 using Chatter.Shared.Logger;
@@ -19,14 +19,14 @@ public class KeycloakEventProcessorTests : IntegrationTestBase<KeycloakIntegrati
     }
 
     [Fact]
-    public async Task Run_WithCreateUserEvent_ShouldSyncUserFromKeycloak()
+    public async Task KeycloakEventProcessor_WithCreateUserEvent_ShouldSyncUserFromKeycloak()
     {
         // Arrange
         var keycloakEvent = new KeycloakAdminEvent
         {
             OperationType = "CREATE",
             ResourceType = "USER",
-            ResourcePath = $"users/{KeycloakIntegrationTestFixture.TestUserId}",
+            ResourcePath = $"users/{KeycloakTestUsersData.TestUserId}",
             Time = Fixture.DateTimeProvider.UtcNow,
             IsProcessed = false
         };
@@ -42,23 +42,23 @@ public class KeycloakEventProcessorTests : IntegrationTestBase<KeycloakIntegrati
         await processor.Run();
 
         // Assert
-        var user = await Db.Users.FirstOrDefaultAsync(u => u.KeycloakId == Guid.Parse(KeycloakIntegrationTestFixture.TestUserId));
+        var user = await Db.Users.FirstOrDefaultAsync(u => u.KeycloakId == Guid.Parse(KeycloakTestUsersData.TestUserId));
         user.Should().NotBeNull();
-        user.UserName.Should().Be(KeycloakIntegrationTestFixture.TestUsername);
-        user.Email.Should().Be(KeycloakIntegrationTestFixture.TestEmail);
+        user.UserName.Should().Be(KeycloakTestUsersData.TestUsername);
+        user.Email.Should().Be(KeycloakTestUsersData.TestEmail);
 
         var processedEvent = await Db.KeycloakAdminEvents.FirstAsync();
         processedEvent.IsProcessed.Should().BeTrue();
     }
 
     [Fact]
-    public async Task Run_WithUpdateUserEvent_ShouldUpdateExistingUser()
+    public async Task KeycloakEventProcessor_WithUpdateUserEvent_ShouldUpdateExistingUser()
     {
         // Arrange
         var existingUser = new User
         {
             Id = Guid.NewGuid(),
-            KeycloakId = Guid.Parse(KeycloakIntegrationTestFixture.TestUserId),
+            KeycloakId = Guid.Parse(KeycloakTestUsersData.TestUserId),
             UserName = "oldusername",
             Email = "old@test.com"
         };
@@ -68,7 +68,7 @@ public class KeycloakEventProcessorTests : IntegrationTestBase<KeycloakIntegrati
         {
             OperationType = "UPDATE",
             ResourceType = "USER",
-            ResourcePath = $"users/{KeycloakIntegrationTestFixture.TestUserId}",
+            ResourcePath = $"users/{KeycloakTestUsersData.TestUserId}",
             Time = Fixture.DateTimeProvider.UtcNow,
             IsProcessed = false
         };
@@ -83,22 +83,22 @@ public class KeycloakEventProcessorTests : IntegrationTestBase<KeycloakIntegrati
         await processor.Run();
 
         // Assert
-        var user = await Db.Users.FirstOrDefaultAsync(u => u.KeycloakId == Guid.Parse(KeycloakIntegrationTestFixture.TestUserId));
+        var user = await Db.Users.FirstOrDefaultAsync(u => u.KeycloakId == Guid.Parse(KeycloakTestUsersData.TestUserId));
         user.Should().NotBeNull();
-        user.UserName.Should().Be(KeycloakIntegrationTestFixture.TestUsername);
-        user.Email.Should().Be(KeycloakIntegrationTestFixture.TestEmail);
+        user.UserName.Should().Be(KeycloakTestUsersData.TestUsername);
+        user.Email.Should().Be(KeycloakTestUsersData.TestEmail);
     }
 
     [Fact]
-    public async Task Run_WithDeleteUserEvent_ShouldDeleteUser()
+    public async Task KeycloakEventProcessor_WithDeleteUserEvent_ShouldDeleteUser()
     {
         // Arrange
         var existingUser = new User
         {
             Id = Guid.NewGuid(),
-            KeycloakId = Guid.Parse(KeycloakIntegrationTestFixture.TestUserId),
-            UserName = KeycloakIntegrationTestFixture.TestUsername,
-            Email = KeycloakIntegrationTestFixture.TestEmail
+            KeycloakId = Guid.Parse(KeycloakTestUsersData.TestUserId),
+            UserName = KeycloakTestUsersData.TestUsername,
+            Email = KeycloakTestUsersData.TestEmail
         };
         Db.Users.Add(existingUser);
 
@@ -106,7 +106,7 @@ public class KeycloakEventProcessorTests : IntegrationTestBase<KeycloakIntegrati
         {
             OperationType = "DELETE",
             ResourceType = "USER",
-            ResourcePath = $"users/{KeycloakIntegrationTestFixture.TestUserId}",
+            ResourcePath = $"users/{KeycloakTestUsersData.TestUserId}",
             Time = Fixture.DateTimeProvider.UtcNow,
             IsProcessed = false
         };
@@ -121,7 +121,7 @@ public class KeycloakEventProcessorTests : IntegrationTestBase<KeycloakIntegrati
         await processor.Run();
 
         // Assert
-        var user = await Db.Users.FirstOrDefaultAsync(u => u.KeycloakId == Guid.Parse(KeycloakIntegrationTestFixture.TestUserId));
+        var user = await Db.Users.FirstOrDefaultAsync(u => u.KeycloakId == Guid.Parse(KeycloakTestUsersData.TestUserId));
         user.Should().BeNull();
 
         var processedEvent = await Db.KeycloakAdminEvents.FirstAsync();
@@ -129,7 +129,7 @@ public class KeycloakEventProcessorTests : IntegrationTestBase<KeycloakIntegrati
     }
 
     [Fact]
-    public async Task Run_WithNoEvents_ShouldNotThrow()
+    public async Task KeycloakEventProcessor_WithNoEvents_ShouldNotThrow()
     {
         // Arrange
         var keycloakService = Fixture.CreateKeycloakService();

@@ -1,4 +1,4 @@
-using Chatter.IntegrationTests.Shared.Fixtures;
+using Chatter.IntegrationTests.KeycloakEventProcessor.Fixtures;
 using Xunit;
 
 namespace Chatter.IntegrationTests;

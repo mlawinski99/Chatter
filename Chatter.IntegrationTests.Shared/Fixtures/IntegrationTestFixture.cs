@@ -1,27 +1,17 @@
-using Testcontainers.PostgreSql;
+using Chatter.IntegrationTests.Shared.Infrastructure.Containers;
 using Xunit;
 
 namespace Chatter.IntegrationTests.Shared.Fixtures;
 
 public class IntegrationTestFixture : IntegrationTestFixtureBase, IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgresContainer;
+    private readonly PostgresContainerFixture _postgresFixture = new();
 
-    protected override string PostgresConnectionString => _postgresContainer.GetConnectionString();
-
-    public IntegrationTestFixture()
-    {
-        _postgresContainer = new PostgreSqlBuilder()
-            .WithImage("postgres:18")
-            .WithDatabase("testdb")
-            .WithUsername("testuser")
-            .WithPassword("testpassword")
-            .Build();
-    }
+    protected override string PostgresConnectionString => _postgresFixture.ConnectionString;
 
     public async Task InitializeAsync()
     {
-        await _postgresContainer.StartAsync();
+        await _postgresFixture.StartAsync();
         await InitializeDatabaseAsync();
     }
 
@@ -33,6 +23,6 @@ public class IntegrationTestFixture : IntegrationTestFixtureBase, IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await _postgresContainer.DisposeAsync();
+        await _postgresFixture.DisposeAsync();
     }
 }

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="xunit" Version="2.9.3" />
+        <PackageReference Include="FluentAssertions" Version="8.2.0" />
+        <PackageReference Include="NSubstitute" Version="5.3.0" />
+        <PackageReference Include="Testcontainers.Kafka" Version="4.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Chatter.IntegrationTests.Shared\Chatter.IntegrationTests.Shared.csproj" />
+        <ProjectReference Include="..\Chatter.Shared.KafkaProducer\Chatter.Shared.KafkaProducer.csproj" />
+        <ProjectReference Include="..\Chatter.Shared.KafkaConsumer\Chatter.Shared.KafkaConsumer.csproj" />
+    </ItemGroup>
+
+</Project>

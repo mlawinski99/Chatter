@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace Chatter.Shared.KafkaConsumer;
 
-public class KafkaConsumer : IConsumer
+public class KafkaConsumer : IConsumer, IDisposable
 {
     private readonly IAppLogger<KafkaConsumer> _logger;
     private readonly HashSet<string> _allowedTopics;
@@ -46,4 +46,6 @@ public class KafkaConsumer : IConsumer
             await handler(result.Topic, result.Message.Value);
         }
     }
+
+    public void Dispose() => _consumer.Close();
 }

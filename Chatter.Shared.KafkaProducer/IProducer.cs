@@ -1,6 +1,6 @@
-﻿namespace Chatter.Shared.KafkaProducer;
+namespace Chatter.Shared.KafkaProducer;
 
 public interface IProducer<T>
 {
-    bool Produce(string topic, T message);
+    Task<bool> ProduceAsync(string topic, T message, CancellationToken cancellationToken = default);
 }

@@ -1,15 +1,45 @@
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.Extensions.Options;
+
 namespace Chatter.Shared.Encryption;
 
 public class AesEncryptor : IEncryptor
 {
-    // @TODO
+    private readonly byte[] _key;
+
+    public AesEncryptor(IOptions<AesEncryptorOptions> options)
+    {
+        _key = Convert.FromBase64String(options.Value.Key);
+    }
+
     public string Encrypt(string plainText)
     {
-        return string.Empty;
+        using var aes = Aes.Create();
+        aes.Key = _key;
+        aes.GenerateIV();
+
+        using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+        var plainBytes = Encoding.UTF8.GetBytes(plainText);
+        var encrypted = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
+
+        var result = aes.IV.Concat(encrypted).ToArray();
+        return Convert.ToBase64String(result);
     }
 
     public string Decrypt(string cipherText)
     {
-        return string.Empty;
+        var data = Convert.FromBase64String(cipherText);
+        var iv = data[..16]; // first 16 bytes
+        var cipher = data[16..]; // rest of bytes
+
+        using var aes = Aes.Create();
+        aes.Key = _key;
+        aes.IV = iv;
+
+        using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+        var decrypted = decryptor.TransformFinalBlock(cipher, 0, cipher.Length);
+
+        return Encoding.UTF8.GetString(decrypted);
     }
 }

@@ -1,5 +1,5 @@
+using Chatter.IntegrationTests.KeycloakEventProcessor.Fixtures;
 using Chatter.IntegrationTests.Shared;
-using Chatter.IntegrationTests.Shared.Fixtures;
 using Chatter.IntegrationTests.Shared.Infrastructure;
 using Chatter.Shared.Logger;
 using Chatter.SyncUsersJob;
@@ -33,7 +33,7 @@ public class KeycloakEventSyncServiceTests : IntegrationTestBase<KeycloakEventSy
         var config = Fixture.CreateKeycloakConfig();
         var logger = Substitute.For<IAppLogger<KeycloakEventSyncService>>();
         var syncService = new KeycloakEventSyncService(
-            new KeycloakHttpClientFactory(),
+            new TestHttpClientFactory(),
             config,
             logger,
             keycloakService,
@@ -58,14 +58,14 @@ public class KeycloakEventSyncServiceTests : IntegrationTestBase<KeycloakEventSy
         var keycloakService = Fixture.CreateKeycloakService();
         var token = await keycloakService.GetToken();
 
-        await keycloakService.UpdateUser(token, KeycloakEventSyncTestFixture.TestUserId, "testEmailUpdate@example.com");
+        await keycloakService.UpdateUser(token, KeycloakTestUsersData.TestUserId, "testEmailUpdate@example.com");
 
         await Task.Delay(500);
 
         var config = Fixture.CreateKeycloakConfig();
         var logger = Substitute.For<IAppLogger<KeycloakEventSyncService>>();
         var syncService = new KeycloakEventSyncService(
-            new KeycloakHttpClientFactory(),
+            new TestHttpClientFactory(),
             config,
             logger,
             keycloakService,
@@ -90,8 +90,8 @@ public class KeycloakEventSyncServiceTests : IntegrationTestBase<KeycloakEventSy
         var keycloakService = Fixture.CreateKeycloakService();
         var token = await keycloakService.GetToken();
 
-        var username = "test";
-        var email = $"{username}@test.com";
+        var username = "testcreate";
+        var email = $"{username}create@test.com";
         await keycloakService.CreateUser(token, username, email);
 
         await Task.Delay(500);
@@ -99,7 +99,7 @@ public class KeycloakEventSyncServiceTests : IntegrationTestBase<KeycloakEventSy
         var config = Fixture.CreateKeycloakConfig();
         var logger = Substitute.For<IAppLogger<KeycloakEventSyncService>>();
         var syncService = new KeycloakEventSyncService(
-            new KeycloakHttpClientFactory(),
+            new TestHttpClientFactory(),
             config,
             logger,
             keycloakService,
@@ -148,7 +148,7 @@ public class KeycloakEventSyncServiceTests : IntegrationTestBase<KeycloakEventSy
         var config = Fixture.CreateKeycloakConfig();
         var logger = Substitute.For<IAppLogger<KeycloakEventSyncService>>();
         var syncService = new KeycloakEventSyncService(
-            new KeycloakHttpClientFactory(),
+            new TestHttpClientFactory(),
             config,
             logger,
             keycloakService,
@@ -166,5 +166,4 @@ public class KeycloakEventSyncServiceTests : IntegrationTestBase<KeycloakEventSy
 
         eventsAfterSecondSync.Should().Be(eventsAfterFirstSync);
     }
-
 }

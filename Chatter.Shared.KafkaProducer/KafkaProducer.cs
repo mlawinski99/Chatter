@@ -35,32 +35,32 @@ public class KafkaProducer<T> : IProducer<T>, IDisposable
         _jsonSerializer = jsonSerializer;
     }
 
-    public bool Produce(string topic, T message)
+    public async Task<bool> ProduceAsync(string topic, T message, CancellationToken cancellationToken = default)
     {
         var serializedMessage = _jsonSerializer.Serialize(message);
         var id = Guid.NewGuid().ToString();
-        var result = false;
-        _producer.Produce(topic, new Message<string, string>
+
+        try
+        {
+            await _producer.ProduceAsync(topic, new Message<string, string>
             {
                 Key = id,
                 Value = serializedMessage
-            },
-            deliveryReport =>
-            {
-                if (deliveryReport.Error.IsError)
-                {
-                    _logger.LogError("Failed on delivery message {Id}: {Reason}", id, deliveryReport.Error.Reason);
-                    result = false;
-                }
-                else
-                {
-                    _logger.LogInformation("Successfully delivered message {Id}", id);
-                    result = true;
-                }
-            });
-        
-        return result;
+            }, cancellationToken);
+
+            _logger.LogInformation("Successfully delivered message {Id}", id);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to deliver message {id} to topic {topic}", ex);
+            return false;
+        }
     }
 
-    public void Dispose() => _producer.Flush(TimeSpan.FromSeconds(5));
+    public void Dispose()
+    {
+        _producer.Flush(TimeSpan.FromSeconds(5));
+        _producer.Dispose();
+    }
 }
