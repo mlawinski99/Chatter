@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chatter.OutboxService;
 
-public class OutboxMessageProcessor<TContext> : IOutboxMessageProcessor<TContext> 
+public class OutboxMessageProcessor<TContext> : IOutboxMessageProcessor<TContext>
     where TContext : DbContext, IOutbox
 {
     private readonly TContext _db;
@@ -13,7 +13,7 @@ public class OutboxMessageProcessor<TContext> : IOutboxMessageProcessor<TContext
     private readonly IProducer<OutboxMessage> _producer;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly int _batchSize = 100;
-    
+
     public OutboxMessageProcessor(TContext db,
         IAppLogger<OutboxMessageProcessor<TContext>> logger,
         IProducer<OutboxMessage> producer,
@@ -37,22 +37,26 @@ public class OutboxMessageProcessor<TContext> : IOutboxMessageProcessor<TContext
         {
             try
             {
-                var isProduceSucceded = await _producer.ProduceAsync(message.Type, message);
+                var isProduceSucceeded = await _producer.ProduceAsync(message.Type, message, cancellationToken);
 
-                if (isProduceSucceded)
+                if (isProduceSucceeded)
                 {
                     message.ProcessedOn = _dateTimeProvider.UtcNow;
                     message.IsProcessed = true;
-                    
+
                     await _db.SaveChangesAsync(cancellationToken);
+                }
+                else
+                {
+                    _logger.LogError("Failed to produce outbox message {MessageId} to topic {Topic}", message.Id, message.Type);
+                    _db.Entry(message).State = EntityState.Unchanged;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to process outbox message {message.Id}", ex);
+                _logger.LogError("Failed to process outbox message {MessageId}: {Error}", message.Id, ex.Message);
                 _db.Entry(message).State = EntityState.Unchanged;
             }
         }
-
     }
 }

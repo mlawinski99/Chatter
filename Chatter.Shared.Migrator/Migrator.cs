@@ -1,4 +1,4 @@
-﻿using Npgsql;
+using Npgsql;
 
 namespace Chatter.Migrator;
 
@@ -6,12 +6,18 @@ public class Migrator(string connectionString, string scriptPath)
 {
     public async Task ExecutePendingMigrationsAsync()
     {
-        EnsureMigrationTable();
+        if (!Directory.Exists(scriptPath))
+            throw new DirectoryNotFoundException($"Migration script directory not found: {scriptPath}");
 
-        var executedScripts = GetExecutedScriptNames();
+        await EnsureMigrationTableAsync();
+
+        var executedScripts = await GetExecutedScriptNamesAsync();
         var sqlFiles = Directory.GetFiles(scriptPath, "*.sql")
             .OrderBy(f => f)
             .ToList();
+
+        await using var sqlConnection = new NpgsqlConnection(connectionString);
+        await sqlConnection.OpenAsync();
 
         foreach (var file in sqlFiles)
         {
@@ -20,11 +26,9 @@ public class Migrator(string connectionString, string scriptPath)
 
             Console.WriteLine($"Running {fileName}...");
 
-            var script = File.ReadAllText(file);
-            using var sqlConnection = new NpgsqlConnection(connectionString);
-            await sqlConnection.OpenAsync();
+            var script = await File.ReadAllTextAsync(file);
 
-            using var transaction = sqlConnection.BeginTransaction();
+            await using var transaction = await sqlConnection.BeginTransactionAsync();
 
             try
             {
@@ -34,7 +38,7 @@ public class Migrator(string connectionString, string scriptPath)
                 }
 
                 using (var command = new NpgsqlCommand(
-                           @"INSERT INTO public.""MigrationHistory"" (""ScriptName"") VALUES (@name)", 
+                           @"INSERT INTO public.""MigrationHistory"" (""ScriptName"") VALUES (@name)",
                            sqlConnection, transaction))
                 {
                     command.Parameters.AddWithValue("@name", fileName);
@@ -42,7 +46,7 @@ public class Migrator(string connectionString, string scriptPath)
                 }
 
                 await transaction.CommitAsync();
-                    Console.WriteLine($"{fileName} executed successfully.");
+                Console.WriteLine($"{fileName} executed successfully.");
             }
             catch (Exception ex)
             {
@@ -55,10 +59,10 @@ public class Migrator(string connectionString, string scriptPath)
         Console.WriteLine("All pending migrations processed.");
     }
 
-    private void EnsureMigrationTable()
+    private async Task EnsureMigrationTableAsync()
     {
-        using var sqlConnection = new NpgsqlConnection(connectionString);
-        sqlConnection.Open();
+        await using var sqlConnection = new NpgsqlConnection(connectionString);
+        await sqlConnection.OpenAsync();
 
         var cmdText = @"
             CREATE TABLE IF NOT EXISTS public.""MigrationHistory"" (
@@ -67,19 +71,19 @@ public class Migrator(string connectionString, string scriptPath)
                 ""ExecutedOn"" TIMESTAMP NOT NULL DEFAULT NOW()
             );
         ";
-        using var cmd = new NpgsqlCommand(cmdText, sqlConnection);
-        cmd.ExecuteNonQuery();
+        await using var cmd = new NpgsqlCommand(cmdText, sqlConnection);
+        await cmd.ExecuteNonQueryAsync();
     }
 
-    private HashSet<string> GetExecutedScriptNames()
+    private async Task<HashSet<string>> GetExecutedScriptNamesAsync()
     {
         var result = new HashSet<string>();
-        using var conn = new NpgsqlConnection(connectionString);
-        conn.Open();
+        await using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
 
-        var cmd = new NpgsqlCommand(@"SELECT ""ScriptName"" FROM public.""MigrationHistory""", conn);
-        using var reader = cmd.ExecuteReader();
-        while (reader.Read())
+        await using var cmd = new NpgsqlCommand(@"SELECT ""ScriptName"" FROM public.""MigrationHistory""", conn);
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
         {
             result.Add(reader.GetString(0));
         }
