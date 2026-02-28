@@ -45,7 +45,7 @@ public class AesEncryptorTests
     }
 
     [Fact]
-    public void Encrypt_SamePlainText_ShouldProduceDifferentEncryptedText()
+    public void Encrypt_SamePlainText_ShouldProduceSameEncryptedText()
     {
         // Arrange
         var plainText = "Test";
@@ -53,6 +53,21 @@ public class AesEncryptorTests
         // Act
         var encrypted1 = _encryptor.Encrypt(plainText);
         var encrypted2 = _encryptor.Encrypt(plainText);
+
+        // Assert
+        encrypted1.Should().Be(encrypted2);
+    }
+
+    [Fact]
+    public void Encrypt_DifferentPlainText_ShouldProduceDifferentEncryptedText()
+    {
+        // Arrange
+        var plainText1 = "Test1";
+        var plainText2 = "Test2";
+
+        // Act
+        var encrypted1 = _encryptor.Encrypt(plainText1);
+        var encrypted2 = _encryptor.Encrypt(plainText2);
 
         // Assert
         encrypted1.Should().NotBe(encrypted2);

@@ -17,7 +17,7 @@ public class AesEncryptor : IEncryptor
     {
         using var aes = Aes.Create();
         aes.Key = _key;
-        aes.GenerateIV();
+        aes.IV = DeriveIv(plainText);
 
         using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
         var plainBytes = Encoding.UTF8.GetBytes(plainText);
@@ -41,5 +41,10 @@ public class AesEncryptor : IEncryptor
         var decrypted = decryptor.TransformFinalBlock(cipher, 0, cipher.Length);
 
         return Encoding.UTF8.GetString(decrypted);
+    }
+
+    private byte[] DeriveIv(string plainText)
+    {
+        return SHA256.HashData(Encoding.UTF8.GetBytes(plainText))[..16];
     }
 }
