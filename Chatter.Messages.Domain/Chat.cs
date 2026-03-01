@@ -12,10 +12,13 @@ public class Chat : AggregateRoot, IAuditable
     
     private readonly List<ChatMember> _members = new();
     public IReadOnlyCollection<ChatMember> Members => _members.AsReadOnly();
-    private Chat() { } // for EF
-    public Chat(ChatType type)
+    
+    public static Chat Create(ChatType type)
     {
-        Type = type;
+        var chat = new Chat();
+        chat.Type = type;
+        
+        return chat;
     }
 
     public void AddMember(User user)
@@ -23,7 +26,7 @@ public class Chat : AggregateRoot, IAuditable
         if(_members.Any(x => x.User == user))
             throw new ApplicationException("Member is already in the chat.");
         
-        _members.Add(new ChatMember(user, this));
+        _members.Add(ChatMember.Create(user, this));
     }
 
     public void AddMembers(List<User> users)

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="11.11.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Chatter.Shared.CQRS\Chatter.Shared.CQRS.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.ResultPattern\Chatter.Shared.ResultPattern.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.KeycloakService\Chatter.Shared.KeycloakService.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.Context\Chatter.Shared.Context.csproj" />
+      <ProjectReference Include="..\Chatter.Users.DataAccess\Chatter.Users.DataAccess.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.Logger\Chatter.Shared.Logger.csproj" />
+    </ItemGroup>
+
+</Project>

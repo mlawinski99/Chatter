@@ -21,7 +21,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.RequireHttpsMetadata = keycloakConfiguration["RequireHttpsMetadata"] != null ?
             keycloakConfiguration["RequireHttpsMetadata"].Equals("true", StringComparison.OrdinalIgnoreCase) :
             true;
-
+        
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = true,

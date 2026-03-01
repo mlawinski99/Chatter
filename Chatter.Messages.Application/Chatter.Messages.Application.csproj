@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <Folder Include="Chat\Models\" />
-      <Folder Include="Message\Models\" />
     </ItemGroup>
 
     <ItemGroup>

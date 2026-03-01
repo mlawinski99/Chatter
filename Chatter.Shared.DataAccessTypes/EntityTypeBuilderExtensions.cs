@@ -16,8 +16,8 @@ public static class EntityTypeBuilderExtensions
     public static EntityTypeBuilder<TEntity> WithAuditable<TEntity>(this EntityTypeBuilder<TEntity> builder)
         where TEntity : Entity, IAuditable
     {
-        builder.HasKey(e => e.DateCreatedUtc);
-        builder.HasKey(e => e.DateModifiedUtc);
+        builder.Property(e => e.DateCreatedUtc);
+        builder.Property(e => e.DateModifiedUtc);
 
         return builder;
     }
@@ -25,10 +25,10 @@ public static class EntityTypeBuilderExtensions
     public static EntityTypeBuilder<TEntity> WithAuditableWithUser<TEntity>(this EntityTypeBuilder<TEntity> builder)
         where TEntity : Entity, IAuditableWithUser
     {
-        builder.HasKey(e => e.DateCreatedUtc);
-        builder.HasKey(e => e.DateModifiedUtc);
-        builder.HasKey(e => e.CreatedBy);
-        builder.HasKey(e => e.ModifiedBy);
+        builder.Property(e => e.DateCreatedUtc);
+        builder.Property(e => e.DateModifiedUtc);
+        builder.Property(e => e.CreatedBy);
+        builder.Property(e => e.ModifiedBy);
 
         return builder;
     }

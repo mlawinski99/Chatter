@@ -1,4 +1,3 @@
-using Chatter.IntegrationTests.Shared.Fixtures;
 using Chatter.IntegrationTests.Shared.Infrastructure;
 using Chatter.IntegrationTests.Shared.Infrastructure.Containers;
 using Chatter.Shared.KeycloakService;
@@ -6,7 +5,7 @@ using Chatter.SyncKeycloakEventsJob;
 using Microsoft.Extensions.Options;
 using Xunit;
 
-namespace Chatter.IntegrationTests.KeycloakEventProcessor.Fixtures;
+namespace Chatter.IntegrationTests.Shared.Fixtures;
 
 public class KeycloakIntegrationTestFixture : IntegrationTestFixtureBase, IAsyncLifetime
 {
@@ -23,11 +22,6 @@ public class KeycloakIntegrationTestFixture : IntegrationTestFixtureBase, IAsync
             _postgresFixture.StartAsync()
         );
 
-        await InitializeDatabaseAsync();
-    }
-
-    private async Task InitializeDatabaseAsync()
-    {
         await using var context = CreateDbContext();
         await context.Database.EnsureCreatedAsync();
     }

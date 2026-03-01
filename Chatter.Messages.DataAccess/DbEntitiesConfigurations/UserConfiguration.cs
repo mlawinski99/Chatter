@@ -14,7 +14,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .WithId()
             .WithAuditable()
             .WithSoftDeletable()
-            .ToTable("dbo.Users");
+            .ToTable("Users");
         
         builder.Property(x => x.KeycloakId);
         builder.Property(x => x.UserName);

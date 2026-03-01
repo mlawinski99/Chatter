@@ -1,5 +1,5 @@
-using Chatter.IntegrationTests.KeycloakEventProcessor.Fixtures;
 using Chatter.IntegrationTests.Shared;
+using Chatter.IntegrationTests.Shared.Fixtures;
 using Chatter.IntegrationTests.Shared.Infrastructure;
 using Chatter.Shared.Domain;
 using Chatter.Shared.Logger;

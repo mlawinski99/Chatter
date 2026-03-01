@@ -21,15 +21,16 @@ public class SendMessage : ICommandHandler<SendMessage.SendMessageCommand, Resul
         _chatDbContext = chatDbContext;
         _userProvider = userProvider;
     }
+    
     public async Task<Result> Handle(SendMessageCommand model, CancellationToken cancellationToken)
     {
         var chat = await _chatDbContext.Chats
             .FirstOrDefaultAsync(x => x.Id == model.ChatId, cancellationToken);
 
         if (chat is null)
-            return Result.Failure("Chat not found");
+            return Result.NotFound("Chat not found");
 
-        var message = new MessagesDomain.Message(
+        var message = MessagesDomain.Message.Create(
             new MessageContent(model.Content),
             new User { Id = (Guid)_userProvider.UserId },
             chat);

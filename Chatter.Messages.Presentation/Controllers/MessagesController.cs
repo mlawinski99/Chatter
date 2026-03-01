@@ -2,22 +2,16 @@ using Chatter.Messages.Application.Message.Commands;
 using Chatter.MessagesService.Models;
 using Chatter.Shared.CQRS;
 using Chatter.Shared.ResultPattern;
+using Chatter.Shared.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chatter.MessagesService.Controllers;
 
-[ApiController]
 [Route("[controller]")]
 [Authorize]
-public class MessagesController : ControllerBase
+public class MessagesController(IRequestDispatcher requestDispatcher) : BaseController(requestDispatcher)
 {
-    private readonly IRequestDispatcher _requestDispatcher;
-
-    public MessagesController(IRequestDispatcher requestDispatcher)
-    {
-        _requestDispatcher = requestDispatcher;
-    }
 
     [HttpPost]
     public async Task<Result> SendMessage(SendMessageRequest model)
@@ -27,12 +21,12 @@ public class MessagesController : ControllerBase
         return await _requestDispatcher.Dispatch(request);
     }
     
-    [HttpPut]
-    public IActionResult EditMessage(EditMessageRequest model)
-    {
-        return Ok();
-    }
-    
+    // [HttpPut]
+    // public IActionResult EditMessage(EditMessageRequest model)
+    // {
+    //     return Ok();
+    // }
+    //
     [HttpDelete]
     public IActionResult RemoveMessage(Guid messageId)
     {

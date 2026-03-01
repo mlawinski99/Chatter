@@ -1,6 +1,5 @@
 using Chatter.MessagesDataAccess.DbContexts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,11 +11,7 @@ public static class MessagesDataAccessDependencyInstaller
     {
         services.AddDbContext<ChatDbContext>((serviceProvider, options) =>
         {
-            var interceptors = serviceProvider.GetServices<IInterceptor>();
-    
             options.UseNpgsql(configuration["ConnectionStrings:MessagesDb"]);
-
-            options.AddInterceptors(interceptors);
         });
         return services;
     }

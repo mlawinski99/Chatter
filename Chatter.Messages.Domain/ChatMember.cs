@@ -16,11 +16,13 @@ public class ChatMember : Entity, IAuditableWithUser, ISoftDeletable
     public Chat Chat { get; set; }
     public User User { get; set; }
     
-    private ChatMember() { } // for EF
-    public ChatMember(User user, Chat chat)
+    public static ChatMember Create(User user, Chat chat)
     {
-        User = user;
-        Chat = chat;
+        var chatMember = new ChatMember();
+        chatMember.User = user;
+        chatMember.Chat = chat;
+        
+        return chatMember;
     }
 
 }

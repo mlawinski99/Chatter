@@ -18,13 +18,16 @@ public class Message : AggregateRoot, IAuditableWithUser, ISoftDeletable, IVersi
     public Guid? VersionGroupId { get; set; }
     public User Sender { get; set; }
     public Chat Chat { get; set; }
-    private Message() { } // for EF
-    public Message(MessageContent content, User sender, Chat chat)
+    
+    public static Message Create(MessageContent content, User sender, Chat chat)
     {
-        Status = MessageStatus.Sending;
-        Content = content;
-        Sender = sender;
-        Chat = chat;
-        AddDomainEvent(new MessageCreated(chat.Id, content.Text, sender.Id));
+        var message = new Message();
+        message.Status = MessageStatus.Sending;
+        message.Content = content;
+        message.Sender = sender;
+        message.Chat = chat;
+        message.AddDomainEvent(new MessageCreated(chat.Id, content.Text, sender.Id));
+
+        return message;
     }
 }

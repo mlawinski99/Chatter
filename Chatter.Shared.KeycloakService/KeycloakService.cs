@@ -17,6 +17,8 @@ public interface IKeycloakService
     Task CreateUser(string token, string username, string email);
     Task UpdateUser(string token, string userId, string email);
     Task DeleteUser(string token, string userId);
+    Task<KeycloakTokenResponse?> LoginUser(string username, string password);
+    Task LogoutUser(string refreshToken);
 }
 
 public class KeycloakService : IKeycloakService
@@ -134,6 +136,44 @@ public class KeycloakService : IKeycloakService
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             throw new HttpRequestException($"Keycloak DeleteUser failed with code {response.StatusCode} and message {errorContent}");
+        }
+    }
+
+    public async Task<KeycloakTokenResponse?> LoginUser(string username, string password)
+    {
+        var response = await _httpClient.PostAsync(
+            _tokenUrl,
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                {"client_id", _keycloakConfig.ClientId},
+                {"client_secret", _keycloakConfig.ClientSecret},
+                {"grant_type", "password"},
+                {"username", username},
+                {"password", password}
+            }));
+
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        var json = await response.Content.ReadAsStringAsync();
+        return _jsonSerializer.Deserialize<KeycloakTokenResponse>(json);
+    }
+
+    public async Task LogoutUser(string refreshToken)
+    {
+        var response = await _httpClient.PostAsync(
+            KeycloakEndpoints.LogoutEndpoint(_keycloakConfig.AuthServerUrl, _keycloakConfig.Realm),
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                {"client_id", _keycloakConfig.ClientId},
+                {"client_secret", _keycloakConfig.ClientSecret},
+                {"refresh_token", refreshToken}
+            }));
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"Keycloak LogoutUser failed with code {response.StatusCode} and message {errorContent}");
         }
     }
 }
