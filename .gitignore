@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# macOS
+.DS_Store
+
 # User-specific files
 *.rsuser
 *.suo
@@ -398,4 +401,14 @@ FodyWeavers.xsd
 *.msp
 
 # JetBrains Rider
+.idea/
 *.sln.iml
+
+# Ignore all .cache files anywhere in the repo
+*.cache
+
+# Ignore other generated files if needed
+*.g.cs
+*.g.props
+*.g.targets
+
