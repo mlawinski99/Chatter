@@ -4,6 +4,6 @@ using Xunit;
 namespace Chatter.IntegrationTests.Users.Collections;
 
 [CollectionDefinition("UsersApi")]
-public class UsersTestCollection : ICollectionFixture<UsersApiFactory>
+public class UsersTestCollection : ICollectionFixture<UsersTestFixture>
 {
 }

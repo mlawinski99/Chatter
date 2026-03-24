@@ -21,7 +21,7 @@ public static class EntityTypeBuilderExtensions
 
         return builder;
     }
-    
+
     public static EntityTypeBuilder<TEntity> WithAuditableWithUser<TEntity>(this EntityTypeBuilder<TEntity> builder)
         where TEntity : Entity, IAuditableWithUser
     {
@@ -32,7 +32,7 @@ public static class EntityTypeBuilderExtensions
 
         return builder;
     }
-    
+
     public static EntityTypeBuilder<TEntity> WithSoftDeletable<TEntity>(this EntityTypeBuilder<TEntity> builder)
         where TEntity : Entity, ISoftDeletable
     {

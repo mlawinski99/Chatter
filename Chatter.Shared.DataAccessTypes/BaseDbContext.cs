@@ -11,7 +11,7 @@ public abstract class BaseDbContext : DbContext, IUnitOfWork
 {
     private readonly IJsonSerializer _jsonSerializer;
     private readonly IEnumerable<IInterceptor> _interceptors;
-    
+
     protected BaseDbContext(DbContextOptions options,
         IJsonSerializer jsonSerializer,
         IEnumerable<IInterceptor> interceptors)
@@ -24,7 +24,10 @@ public abstract class BaseDbContext : DbContext, IUnitOfWork
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (_interceptors.Any())
+        {
             optionsBuilder.AddInterceptors(_interceptors);
+            optionsBuilder.EnableServiceProviderCaching(false);
+        }
 
         base.OnConfiguring(optionsBuilder);
     }

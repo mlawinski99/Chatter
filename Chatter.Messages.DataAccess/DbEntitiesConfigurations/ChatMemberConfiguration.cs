@@ -13,7 +13,7 @@ public class ChatMemberConfiguration : IEntityTypeConfiguration<ChatMember>
             .WithId()
             .WithAuditableWithUser()
             .WithSoftDeletable()
-            .ToTable("chat.ChatMembers");
+            .ToTable("ChatMembers", "chat");
 
         builder.HasOne(x => x.Chat);
         builder.HasOne(x => x.User);

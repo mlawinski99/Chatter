@@ -3,9 +3,9 @@ CREATE TABLE chat."ChatMembers" (
                                     "DateCreatedUtc" TIMESTAMP NOT NULL,
                                     "DateModifiedUtc" TIMESTAMP NULL,
                                     "CreatedBy" UUID,
-                                    "UpdatedBy" UUID,
+                                    "ModifiedBy" UUID,
                                     "IsDeleted" BOOLEAN NOT NULL DEFAULT FALSE,
-                                    "DeletedAt" TIMESTAMP NULL,
+                                    "DateDeletedUtc" TIMESTAMP NULL,
                                     "ChatId" UUID NOT NULL,
                                     "UserId" UUID NOT NULL,
 

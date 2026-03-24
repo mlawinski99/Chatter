@@ -11,17 +11,17 @@ namespace Chatter.IntegrationTests.Users;
 [Collection("UsersApi")]
 public class LogoutUserTests
 {
-    private readonly UsersApiFactory _factory;
+    private readonly UsersTestFixture _fixture;
 
-    public LogoutUserTests(UsersApiFactory factory)
+    public LogoutUserTests(UsersTestFixture fixture)
     {
-        _factory = factory;
+        _fixture = fixture;
     }
 
     [Fact]
     public async Task LogoutUser_ValidRefreshToken_Returns200()
     {
-        var (client, tokens) = await _factory.CreateAuthenticatedClientWithTokensAsync(
+        var (client, tokens) = await _fixture.Api.CreateAuthenticatedClientWithTokensAsync(
             KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
 
         var response = await client.PostAsJsonAsync("/api/users/logout", new
@@ -35,7 +35,7 @@ public class LogoutUserTests
     [Fact]
     public async Task LogoutUser_EmptyRefreshToken_Returns400()
     {
-        var client = await _factory.CreateAuthenticatedClientAsync(
+        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
             KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
 
         var response = await client.PostAsJsonAsync("/api/users/logout", new
@@ -51,7 +51,7 @@ public class LogoutUserTests
     [Fact]
     public async Task LogoutUser_InvalidRefreshToken_Returns400()
     {
-        var client = await _factory.CreateAuthenticatedClientAsync(
+        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
             KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
 
         var response = await client.PostAsJsonAsync("/api/users/logout", new
@@ -65,7 +65,7 @@ public class LogoutUserTests
     [Fact]
     public async Task LogoutUser_Unauthenticated_Returns401()
     {
-        var client = _factory.CreateClient();
+        var client = _fixture.Api.CreateClient();
 
         var response = await client.PostAsJsonAsync("/api/users/logout", new
         {

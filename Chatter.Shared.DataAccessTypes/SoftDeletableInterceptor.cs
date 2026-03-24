@@ -40,6 +40,12 @@ public class SoftDeletableInterceptor : SaveChangesInterceptor
                 softDeletable.DateDeletedUtc = _dateTimeProvider.UtcNow;
                 softDeletable.IsDeleted = true;
                 entry.State = EntityState.Modified;
+
+                foreach (var reference in entry.References)
+                {
+                    if (reference.TargetEntry?.State == EntityState.Deleted)
+                        reference.TargetEntry.State = EntityState.Unchanged;
+                }
             }
         }
     }

@@ -20,7 +20,6 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
                 x => x.Name, 
                 x => Enumeration.GetByName<ChatType>(x));
         
-        builder.HasMany(x => x.Messages);
         builder.HasMany(x => x.Members);
     }
 }

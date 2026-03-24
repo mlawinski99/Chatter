@@ -30,7 +30,6 @@ public class UsersApiFactory : WebApplicationFactory<UsersController>, IAsyncLif
 
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
-        await db.Database.EnsureCreatedAsync();
         UsersDbSeeder.Seed(db);
     }
 
@@ -43,9 +42,13 @@ public class UsersApiFactory : WebApplicationFactory<UsersController>, IAsyncLif
             var settingsPath = Path.Combine(AppContext.BaseDirectory, "Settings", "test-settings.json");
             config.AddJsonFile(settingsPath, optional: false);
 
+            var solutionDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+            var migrationPath = Path.Combine(solutionDir, "Chatter.Users.DataAccess", "Migrations");
+
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:UsersDb"] = _postgresFixture.ConnectionString,
+                ["Migration:ScriptPath"] = migrationPath,
                 ["Keycloak:AuthServerUrl"] = _keycloakFixture.BaseUrl,
                 ["Keycloak:Authority"] = $"{_keycloakFixture.BaseUrl}/realms/{_keycloakFixture.Realm}",
                 ["Keycloak:Realm"] = _keycloakFixture.Realm,

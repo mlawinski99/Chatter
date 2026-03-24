@@ -13,9 +13,9 @@ public class RegisterUserTests
 {
     private readonly HttpClient _client;
 
-    public RegisterUserTests(UsersApiFactory factory)
+    public RegisterUserTests(UsersTestFixture fixture)
     {
-        _client = factory.CreateClient();
+        _client = fixture.Api.CreateClient();
     }
 
     [Fact]

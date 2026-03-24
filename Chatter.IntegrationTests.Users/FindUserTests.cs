@@ -9,17 +9,17 @@ namespace Chatter.IntegrationTests.Users;
 [Collection("UsersApi")]
 public class FindUserTests
 {
-    private readonly UsersApiFactory _factory;
+    private readonly UsersTestFixture _fixture;
 
-    public FindUserTests(UsersApiFactory factory)
+    public FindUserTests(UsersTestFixture fixture)
     {
-        _factory = factory;
+        _fixture = fixture;
     }
 
     [Fact]
     public async Task FindUser_ExistingUsername_Returns200WithUser()
     {
-        var client = await _factory.CreateAuthenticatedClientAsync(
+        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
             KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
 
         var response = await client.GetAsync(
@@ -34,7 +34,7 @@ public class FindUserTests
     [Fact]
     public async Task FindUser_ExistingEmail_Returns200WithUser()
     {
-        var client = await _factory.CreateAuthenticatedClientAsync(
+        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
             KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
 
         var response = await client.GetAsync(
@@ -49,7 +49,7 @@ public class FindUserTests
     [Fact]
     public async Task FindUser_NonExistentUser_Returns200WithNullData()
     {
-        var client = await _factory.CreateAuthenticatedClientAsync(
+        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
             KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
 
         var response = await client.GetAsync("/api/users/search?search=nonexistentuser");
@@ -62,7 +62,7 @@ public class FindUserTests
     [Fact]
     public async Task FindUser_Unauthenticated_Returns401()
     {
-        var client = _factory.CreateClient();
+        var client = _fixture.Api.CreateClient();
 
         var response = await client.GetAsync(
             $"/api/users/search?search={KeycloakTestUsersData.TestUsername}");

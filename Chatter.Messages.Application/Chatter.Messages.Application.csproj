@@ -13,6 +13,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Chatter.Messages.DataAccess\Chatter.Messages.DataAccess.csproj" />
       <ProjectReference Include="..\Chatter.Shared.CQRS\Chatter.Shared.CQRS.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.Pager\Chatter.Shared.Pager.csproj" />
       <ProjectReference Include="..\Chatter.Shared.ResultPattern\Chatter.Shared.ResultPattern.csproj" />
     </ItemGroup>
 

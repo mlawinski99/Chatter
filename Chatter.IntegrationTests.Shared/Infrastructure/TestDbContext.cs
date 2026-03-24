@@ -10,11 +10,6 @@ namespace Chatter.IntegrationTests.Shared.Infrastructure;
 
 public class TestDbContext : BaseDbContext, IUserContext
 {
-    public TestDbContext(DbContextOptions<TestDbContext> options, IJsonSerializer jsonSerializer)
-        : base(options, jsonSerializer, Enumerable.Empty<IInterceptor>())
-    {
-    }
-
     public TestDbContext(DbContextOptions<TestDbContext> options, IJsonSerializer jsonSerializer, IEnumerable<IInterceptor> interceptors)
         : base(options, jsonSerializer, interceptors)
     {

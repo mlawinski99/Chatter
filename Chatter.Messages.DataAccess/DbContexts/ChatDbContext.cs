@@ -17,8 +17,8 @@ public class ChatDbContext : BaseDbContext, IUserContext, IConfigurationContext
     public DbSet<Chat> Chats { get; set; }
     public DbSet<KeycloakAdminEvent> KeycloakAdminEvents { get; set; }
     public DbSet<User> Users { get; set; }
-    
-    public ChatDbContext(DbContextOptions<ChatDbContext> options, 
+
+    public ChatDbContext(DbContextOptions<ChatDbContext> options,
         IJsonSerializer jsonSerializer,
         IEnumerable<IInterceptor> interceptors) : base(options, jsonSerializer, interceptors)
     {
@@ -32,5 +32,6 @@ public class ChatDbContext : BaseDbContext, IUserContext, IConfigurationContext
         modelBuilder.ApplyConfiguration(new MessageConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new KeycloakAdminEventConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfigurationDataConfiguration());
     }
 }

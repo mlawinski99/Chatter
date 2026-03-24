@@ -11,8 +11,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Chatter.Shared.DomainTypes\Chatter.Shared.DomainTypes.csproj" />
       <ProjectReference Include="..\Chatter.Shared.ResultPattern\Chatter.Shared.ResultPattern.csproj" />
       <ProjectReference Include="..\Chatter.Shared.CQRS\Chatter.Shared.CQRS.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.Logger\Chatter.Shared.Logger.csproj" />
     </ItemGroup>
 
 </Project>

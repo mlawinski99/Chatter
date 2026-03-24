@@ -1,4 +1,5 @@
 using System.Reflection;
+using Chatter.Migrator;
 using Chatter.Shared.CQRS;
 using Chatter.Shared.DataAccessTypes;
 using Chatter.Shared.Encryption;
@@ -38,8 +39,7 @@ builder.Services.AddHttpContextAccessor();
 
 var assembly = Assembly.Load("Chatter.Users.Application");
 builder.Services.AddCqrs(assembly);
-builder.Services.Configure<AesEncryptorOptions>(builder.Configuration.GetSection(AesEncryptorOptions.SectionName));
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSharedDataAccessTypes();
 builder.Services.AddUsersDataAccess(builder.Configuration);
 builder.Services.AddKeycloakService();
@@ -48,6 +48,16 @@ builder.Services.Configure<KeycloakConfig>(keycloakConfiguration);
 builder.Services.AddValidatorsFromAssembly(assembly);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+    var connectionString = config["ConnectionStrings:UsersDb"];
+    var scriptPath = config["Migration:ScriptPath"];
+    var absoluteScriptPath = Path.GetFullPath(scriptPath);
+    var migrator = new Migrator(connectionString, absoluteScriptPath);
+    await migrator.ExecutePendingMigrationsAsync();
+}
 
 if (app.Environment.IsDevelopment())
 {

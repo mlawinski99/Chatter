@@ -34,7 +34,7 @@ builder.Configuration.GetSection("Keycloak").Bind(keycloakConfig);
 builder.Services.AddSingleton(keycloakConfig);
 builder.Services.AddSingleton<KeycloakEventSyncService>();
 builder.Services.AddAppLogger();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 var app = builder.Build();
 
 var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();

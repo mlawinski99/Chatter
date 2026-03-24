@@ -7,25 +7,24 @@ public class Chat : AggregateRoot, IAuditable
 {
     public DateTime DateCreatedUtc { get; set; }
     public DateTime? DateModifiedUtc { get; set; }
-    public List<Message> Messages { get; set; } = new();
     public ChatType Type { get; set; }
-    
+
     private readonly List<ChatMember> _members = new();
     public IReadOnlyCollection<ChatMember> Members => _members.AsReadOnly();
-    
+
     public static Chat Create(ChatType type)
     {
         var chat = new Chat();
         chat.Type = type;
-        
+
         return chat;
     }
 
     public void AddMember(User user)
     {
-        if(_members.Any(x => x.User == user))
-            throw new ApplicationException("Member is already in the chat.");
-        
+        if(_members.Any(x => x.User.Id == user.Id))
+            throw new DomainException("Member is already in the chat.");
+
         _members.Add(ChatMember.Create(user, this));
     }
 
@@ -37,28 +36,18 @@ public class Chat : AggregateRoot, IAuditable
 
     public void RemoveMember(User user)
     {
-        var member = _members.FirstOrDefault(x => x.User == user);
+        var member = _members.FirstOrDefault(x => x.User.Id == user.Id);
         if (member is null)
-            throw new ApplicationException("Member is not in the chat.");
+            throw new DomainException("Member is not in the chat.");
         if (member.IsDeleted)
-            throw new ApplicationException("Member is already deleted.");
-        
+            throw new DomainException("Member is already deleted.");
+
         _members.Remove(member);
     }
-    
+
     public void RemoveMembers(List<User> users)
     {
         foreach(var user in users)
             RemoveMember(user);
-    }
-
-    public void AddMessage(Message message)
-    {
-        this.Messages.Add(message);
-    }
-
-    public void RemoveMessage(Message message)
-    {
-        this.Messages.Remove(message);
     }
 }

@@ -4,6 +4,7 @@ using Chatter.Migrator;
 using Chatter.Shared.CQRS;
 using Chatter.Shared.DataAccessTypes;
 using Chatter.Shared.Encryption;
+using Chatter.Shared.Logger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -44,10 +45,11 @@ builder.Host.UseSerilog();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddLogging();
 var assembly = Assembly.Load("Chatter.Messages.Application");
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSharedDataAccessTypes();
 builder.Services.AddMessagesDataAccess(builder.Configuration);
 
+builder.Services.AddAppLogger();
 builder.Services.AddCqrs(assembly);
 var app = builder.Build();
 

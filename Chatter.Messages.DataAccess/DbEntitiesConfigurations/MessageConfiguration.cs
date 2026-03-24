@@ -15,19 +15,26 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
             .WithAuditableWithUser()
             .WithSoftDeletable()
             .WithVersionable()
-            .ToTable("chat.Messages");
+            .ToTable("Messages", "chat");
+        
         builder.OwnsOne(m => m.Content, navBuilder =>
         {
             navBuilder.Property(c => c.Text)
                 .HasColumnName("Content")
                 .IsRequired();
         });
+        
         builder.Property(x => x.Status)
             .HasConversion(
                 x => x.Name, 
                 x => Enumeration.GetByName<MessageStatus>(x));
 
-        builder.HasOne(x => x.Chat);
-        builder.HasOne(x => x.Sender);
+        builder.HasOne(x => x.Chat)
+            .WithMany()
+            .HasForeignKey(x => x.ChatId);
+        
+        builder.HasOne(x => x.Sender)
+            .WithMany()
+            .HasForeignKey(x => x.SenderId);
     }
 }

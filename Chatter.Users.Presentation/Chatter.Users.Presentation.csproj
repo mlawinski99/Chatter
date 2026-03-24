@@ -22,6 +22,7 @@
       <ProjectReference Include="..\Chatter.Shared.KeycloakService\Chatter.Shared.KeycloakService.csproj" />
       <ProjectReference Include="..\Chatter.Shared.Logger\Chatter.Shared.Logger.csproj" />
       <ProjectReference Include="..\Chatter.Shared.Web\Chatter.Shared.Web.csproj" />
+      <ProjectReference Include="..\Chatter.Shared.Migrator\Chatter.Shared.Migrator.csproj" />
     </ItemGroup>
 
     <ItemGroup>

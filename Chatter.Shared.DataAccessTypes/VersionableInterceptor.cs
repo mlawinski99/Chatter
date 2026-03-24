@@ -1,7 +1,8 @@
-using System.Text.Json;
 using Chatter.Shared.DomainTypes;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Chatter.Shared.DataAccessTypes;
 
@@ -37,30 +38,39 @@ public class VersionableInterceptor : SaveChangesInterceptor
 
         foreach (var entry in entries)
         {
-            var entity = entry.Entity;
-            var originalId = (entity as Entity)?.Id;
-            var cloned = CloneEntity(entity);
+            var originalId = (entry.Entity as Entity)?.Id;
+            var historicalClone = CloneFromOriginalValues(entry);
 
-            entry.State = EntityState.Unchanged;
-
-            if (cloned is Entity clonedEntity)
-            {
+            if (historicalClone is Entity clonedEntity)
                 clonedEntity.Id = Guid.NewGuid();
-            }
 
-            if (cloned is IVersionable versionable)
+            if (historicalClone is IVersionable clonedVersionable)
+                clonedVersionable.VersionGroupId = clonedVersionable.VersionGroupId ?? originalId;
+
+            if (entry.Entity is IVersionable original)
             {
-                versionable.VersionId += 1;
-                versionable.VersionGroupId = versionable.VersionGroupId ?? originalId;
+                original.VersionId += 1;
+                entry.Property(nameof(IVersionable.VersionGroupId)).CurrentValue ??= originalId;
             }
 
-            context.Add(cloned);
+            context.Add(historicalClone);
         }
     }
 
-    private static object CloneEntity(object original)
+    private static object CloneFromOriginalValues(EntityEntry entry)
     {
-        var json = JsonSerializer.Serialize(original);
-        return JsonSerializer.Deserialize(json, original.GetType())!;
+        var clone = entry.OriginalValues.ToObject();
+
+        foreach (var reference in entry.References)
+        {
+            if (reference.Metadata is not INavigation nav || !nav.ForeignKey.IsOwnership || reference.TargetEntry is null)
+                continue;
+
+            var ownedClone = reference.TargetEntry.OriginalValues.ToObject();
+            var prop = clone.GetType().GetProperty(reference.Metadata.Name);
+            prop?.SetValue(clone, ownedClone);
+        }
+
+        return clone;
     }
 }

@@ -1,16 +1,22 @@
+using Chatter.Messages.Application.Chat.Queries;
+using Chatter.Shared.CQRS;
+using Chatter.Shared.Pager;
+using Chatter.Shared.ResultPattern;
+using Chatter.Shared.Web;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chatter.MessagesService.Controllers;
 
-
-[ApiController]
 [Route("[controller]")]
-public class ChatsController
+[Authorize]
+public class ChatsController(IRequestDispatcher requestDispatcher) : BaseController(requestDispatcher)
 {
-    private readonly ILogger<MessagesController> _logger;
-
-    public ChatsController(ILogger<MessagesController> logger)
+    [HttpGet]
+    public async Task<Result<PagedResult<GetChatList.ChatDto>>> GetChatList(int page = 1, int pageSize = 20)
     {
-        _logger = logger;
+        var request = new GetChatList.GetChatListQuery(page, pageSize);
+
+        return await _requestDispatcher.Dispatch(request);
     }
 }
