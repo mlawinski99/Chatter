@@ -17,6 +17,7 @@ public class OutboxMessageProcessorTests : IAsyncDisposable
     private readonly IProducer<OutboxMessage> _producer;
     private readonly IAppLogger<OutboxMessageProcessor<TestOutboxDbContext>> _logger;
     private readonly OutboxMessageProcessor<TestOutboxDbContext> _processor;
+    private readonly string _testId = Guid.NewGuid().ToString();
 
     public OutboxMessageProcessorTests(OutboxTestFixture fixture)
     {
@@ -120,7 +121,7 @@ public class OutboxMessageProcessorTests : IAsyncDisposable
 
         // Assert
         await _producer.DidNotReceive()
-            .ProduceAsync(Arg.Any<string>(), Arg.Any<OutboxMessage>(), Arg.Any<CancellationToken>());
+            .ProduceAsync(processed.Type, Arg.Any<OutboxMessage>(), Arg.Any<CancellationToken>());
     }
     
 
@@ -159,14 +160,14 @@ public class OutboxMessageProcessorTests : IAsyncDisposable
 
         // Assert
         await _producer.DidNotReceive()
-            .ProduceAsync(Arg.Any<string>(), Arg.Any<OutboxMessage>(), Arg.Any<CancellationToken>());
+            .ProduceAsync(Arg.Is<string>(t => t.Contains(_testId)), Arg.Any<OutboxMessage>(), Arg.Any<CancellationToken>());
     }
 
     private OutboxMessage CreateUnprocessedMessage() => new()
     {
         Id = Guid.NewGuid(),
         OccurredOnUtc = _fixture.DateTimeProvider.UtcNow,
-        Type = "test-topic",
+        Type = $"test-topic-{_testId}",
         Content = "{\"key\":\"value\"}",
         ProcessedOn = null,
         IsProcessed = false
