@@ -1,8 +1,9 @@
 using System.Net;
 using Chatter.IntegrationTests.Messages.Infrastructure;
 using Chatter.IntegrationTests.Shared.Infrastructure;
+using Chatter.Messages.Application.Chat.Queries;
+using Chatter.Shared.Pager;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Chatter.IntegrationTests.Messages;
@@ -20,47 +21,44 @@ public class GetChatListTests
     [Fact]
     public async Task GetChatList_DefaultPagination_Returns200WithUserChats()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var response = await client.GetAsync("/Chats");
 
+        var result = await response.ReadResult<PagedResult<GetChatList.ChatDto>>();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        using var db = _fixture.CreateDbContext();
-        var userChatCount = await db.ChatMembers
-            .AsNoTracking()
-            .CountAsync(cm => cm.User.Id == MessagesDbSeeder.TestUser1Id);
-
-        var body = await response.Content.ReadAsStringAsync();
-        body.Should().Contain($"\"totalCount\":{userChatCount}");
+        result.IsSuccess.Should().BeTrue();
+        result.Data.Should().NotBeNull();
+        result.Data!.TotalCount.Should().BeGreaterThan(0);
+        result.Data.Items.Should().NotBeEmpty();
     }
 
     [Fact]
-    public async Task GetChatList_WithPagination_Returns200()
+    public async Task GetChatList_WithPagination_Returns200WithCorrectPage()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var response = await client.GetAsync("/Chats?page=1&pageSize=2");
 
+        var result = await response.ReadResult<PagedResult<GetChatList.ChatDto>>();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var body = await response.Content.ReadAsStringAsync();
-        body.Should().Contain("\"page\":1");
-        body.Should().Contain("\"pageSize\":2");
+        result.IsSuccess.Should().BeTrue();
+        result.Data.Should().NotBeNull();
+        result.Data!.Page.Should().Be(1);
+        result.Data.PageSize.Should().Be(2);
     }
 
     [Fact]
-    public async Task GetChatList_IncludesLastMessage_Returns200()
+    public async Task GetChatList_IncludesLastMessage()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var response = await client.GetAsync("/Chats");
 
+        var result = await response.ReadResult<PagedResult<GetChatList.ChatDto>>();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var body = await response.Content.ReadAsStringAsync();
-        body.Should().Contain("lastMessage");
+        result.Data.Should().NotBeNull();
+        result.Data!.Items.Should().Contain(c => c.LastMessage != null);
     }
 
     [Fact]

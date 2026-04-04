@@ -4,6 +4,8 @@ using Chatter.IntegrationTests.Shared.Infrastructure;
 using Chatter.IntegrationTests.Users.Infrastructure;
 using Chatter.Users.Application.Users.Errors;
 using FluentAssertions;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Xunit;
 
 namespace Chatter.IntegrationTests.Users;
@@ -21,45 +23,54 @@ public class LogoutUserTests
     [Fact]
     public async Task LogoutUser_ValidRefreshToken_Returns200()
     {
-        var (client, tokens) = await _fixture.Api.CreateAuthenticatedClientWithTokensAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
+
+        _fixture.KeycloakService.LogoutUser("valid-refresh-token")
+            .Returns(Task.CompletedTask);
 
         var response = await client.PostAsJsonAsync("/api/users/logout", new
         {
-            RefreshToken = tokens.RefreshToken
+            RefreshToken = "valid-refresh-token"
         });
 
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
     public async Task LogoutUser_EmptyRefreshToken_Returns400()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var response = await client.PostAsJsonAsync("/api/users/logout", new
         {
             RefreshToken = ""
         });
 
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var body = await response.Content.ReadAsStringAsync();
-        body.Should().Contain(ValidationMessages.RefreshTokenRequired);
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain(ValidationMessages.RefreshTokenRequired);
     }
 
     [Fact]
-    public async Task LogoutUser_InvalidRefreshToken_Returns400()
+    public async Task LogoutUser_KeycloakFails_Returns400()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
+
+        _fixture.KeycloakService.LogoutUser("bad-token")
+            .Throws(new HttpRequestException("Keycloak error"));
 
         var response = await client.PostAsJsonAsync("/api/users/logout", new
         {
-            RefreshToken = "invalid-refresh-token"
+            RefreshToken = "bad-token"
         });
 
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain(ErrorMessages.FailedToLogout);
     }
 
     [Fact]

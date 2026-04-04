@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Chatter.Shared.Pager;
 
 public class PagedResult<T>
@@ -10,7 +12,8 @@ public class PagedResult<T>
     public bool HasNextPage => Page < TotalPages;
     public bool HasPreviousPage => Page > 1;
 
-    private PagedResult(List<T> items, int page, int pageSize, int totalCount)
+    [JsonConstructor]
+    public PagedResult(List<T> items, int page, int pageSize, int totalCount)
     {
         Items = items;
         Page = page;

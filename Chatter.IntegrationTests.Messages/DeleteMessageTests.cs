@@ -22,11 +22,10 @@ public class DeleteMessageTests
     [Fact]
     public async Task DeleteMessage_OwnMessage_Returns200AndSoftDeletes()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         // Create message to prevent failure of other tests
-        var content = $"Message to delete";
+        var content = "Message to delete";
         await client.PostAsJsonAsync("/Messages", new
         {
             ChatId = MessagesDbSeeder.PrivateChat1Id,
@@ -48,7 +47,10 @@ public class DeleteMessageTests
         };
 
         var response = await client.SendAsync(request);
+
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.IsSuccess.Should().BeTrue();
 
         var deleted = await db.Messages
             .IgnoreQueryFilters()
@@ -62,8 +64,7 @@ public class DeleteMessageTests
     [Fact]
     public async Task DeleteMessage_OthersMessage_Returns403()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var request = new HttpRequestMessage(HttpMethod.Delete, "/Messages")
         {
@@ -75,16 +76,17 @@ public class DeleteMessageTests
         };
 
         var response = await client.SendAsync(request);
+
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        var body = await response.Content.ReadAsStringAsync();
-        body.Should().Contain(ErrorMessages.CanOnlyDeleteOwnMessages);
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain(ErrorMessages.CanOnlyDeleteOwnMessages);
     }
 
     [Fact]
     public async Task DeleteMessage_NonExistentMessage_Returns404()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var request = new HttpRequestMessage(HttpMethod.Delete, "/Messages")
         {
@@ -96,16 +98,17 @@ public class DeleteMessageTests
         };
 
         var response = await client.SendAsync(request);
+
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        var body = await response.Content.ReadAsStringAsync();
-        body.Should().Contain(ErrorMessages.MessageNotFound);
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain(ErrorMessages.MessageNotFound);
     }
 
     [Fact]
     public async Task DeleteMessage_WrongChatId_Returns400()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var request = new HttpRequestMessage(HttpMethod.Delete, "/Messages")
         {
@@ -117,9 +120,11 @@ public class DeleteMessageTests
         };
 
         var response = await client.SendAsync(request);
+
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var body = await response.Content.ReadAsStringAsync();
-        body.Should().Contain(ErrorMessages.MessageDoesNotBelongToChat);
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain(ErrorMessages.MessageDoesNotBelongToChat);
     }
 
     [Fact]

@@ -1,3 +1,4 @@
+using Chatter.Shared.KeycloakService;
 using Chatter.Users.DataAccess.DbContexts;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -7,6 +8,8 @@ namespace Chatter.IntegrationTests.Users.Infrastructure;
 public class UsersTestFixture : IAsyncLifetime
 {
     public UsersApiFactory Api { get; } = new();
+
+    public IKeycloakService KeycloakService => Api.KeycloakService;
 
     public UsersDbContext CreateDbContext()
     {

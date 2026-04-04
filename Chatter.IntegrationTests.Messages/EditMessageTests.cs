@@ -23,8 +23,7 @@ public class EditMessageTests
     [Fact]
     public async Task EditMessage_OwnMessage_Returns200AndUpdatesInDb()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var newContent = $"Edited content {Guid.NewGuid()}";
         var response = await client.PutAsJsonAsync("/Messages", new
@@ -34,7 +33,9 @@ public class EditMessageTests
             Content = newContent
         });
 
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.IsSuccess.Should().BeTrue();
 
         using var db = _fixture.CreateDbContext();
         var message = await db.Messages
@@ -49,8 +50,7 @@ public class EditMessageTests
     [Fact]
     public async Task EditMessage_OthersMessage_Returns403()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var response = await client.PutAsJsonAsync("/Messages", new
         {
@@ -59,16 +59,16 @@ public class EditMessageTests
             Content = "Trying to edit someone else's message"
         });
 
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        var body = await response.Content.ReadAsStringAsync();
-        body.Should().Contain(ErrorMessages.CanOnlyEditOwnMessages);
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain(ErrorMessages.CanOnlyEditOwnMessages);
     }
 
     [Fact]
     public async Task EditMessage_NonExistentMessage_Returns404()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var response = await client.PutAsJsonAsync("/Messages", new
         {
@@ -77,16 +77,16 @@ public class EditMessageTests
             Content = "Editing non-existent message"
         });
 
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        var body = await response.Content.ReadAsStringAsync();
-        body.Should().Contain(ErrorMessages.MessageNotFound);
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain(ErrorMessages.MessageNotFound);
     }
 
     [Fact]
     public async Task EditMessage_WrongChatId_Returns400()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var response = await client.PutAsJsonAsync("/Messages", new
         {
@@ -95,16 +95,16 @@ public class EditMessageTests
             Content = "Editing with wrong chat ID"
         });
 
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var body = await response.Content.ReadAsStringAsync();
-        body.Should().Contain(ErrorMessages.MessageDoesNotBelongToChat);
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain(ErrorMessages.MessageDoesNotBelongToChat);
     }
 
     [Fact]
     public async Task EditMessage_EmptyContent_ReturnsBadRequest()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var response = await client.PutAsJsonAsync("/Messages", new
         {

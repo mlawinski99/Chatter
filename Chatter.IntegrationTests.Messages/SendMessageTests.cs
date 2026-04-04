@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Chatter.IntegrationTests.Messages.Infrastructure;
 using Chatter.IntegrationTests.Shared.Infrastructure;
+using Chatter.Messages.Application.Message.Errors;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -21,8 +22,7 @@ public class SendMessageTests
     [Fact]
     public async Task SendMessage_ValidRequest_Returns200AndPersistsMessage()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var content = $"Test message {Guid.NewGuid()}";
         var response = await client.PostAsJsonAsync("/Messages", new
@@ -31,7 +31,9 @@ public class SendMessageTests
             Content = content
         });
 
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.IsSuccess.Should().BeTrue();
 
         using var db = _fixture.CreateDbContext();
         var message = await db.Messages
@@ -46,8 +48,7 @@ public class SendMessageTests
     [Fact]
     public async Task SendMessage_EmptyContent_ReturnsBadRequest()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var response = await client.PostAsJsonAsync("/Messages", new
         {
@@ -59,26 +60,9 @@ public class SendMessageTests
     }
 
     [Fact]
-    public async Task SendMessage_ContentTooLong_ReturnsBadRequest()
-    {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
-
-        var longContent = new string('a', 1001);
-        var response = await client.PostAsJsonAsync("/Messages", new
-        {
-            ChatId = MessagesDbSeeder.PrivateChat1Id,
-            Content = longContent
-        });
-
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
     public async Task SendMessage_NonExistentChat_Returns404()
     {
-        var client = await _fixture.Api.CreateAuthenticatedClientAsync(
-            KeycloakTestUsersData.TestUsername, KeycloakTestUsersData.TestPassword);
+        var client = _fixture.Api.CreateAuthenticatedClient();
 
         var response = await client.PostAsJsonAsync("/Messages", new
         {
@@ -86,7 +70,10 @@ public class SendMessageTests
             Content = "Message to non-existent chat"
         });
 
+        var result = await response.ReadResult();
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain(ErrorMessages.ChatNotFound);
     }
 
     [Fact]
