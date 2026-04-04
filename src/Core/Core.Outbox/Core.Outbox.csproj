@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <RootNamespace>Core.Outbox</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Core.DateTimeProvider\Core.DateTimeProvider.csproj" />
+      <ProjectReference Include="..\Core.Logger\Core.Logger.csproj" />
+      <ProjectReference Include="..\Core.KafkaProducer\Core.KafkaProducer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
+    </ItemGroup>
+
+</Project>
