@@ -34,7 +34,7 @@ public class MessagesApiFactory : WebApplicationFactory<MessagesController>, IAs
             var settingsPath = Path.Combine(AppContext.BaseDirectory, "Settings", "test-settings.json");
             config.AddJsonFile(settingsPath, optional: false);
 
-            var solutionDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+            var solutionDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
             var migrationPath = Path.Combine(solutionDir, "src", "Chatter.Messages.DataAccess", "Migrations");
 
             config.AddInMemoryCollection(new Dictionary<string, string?>

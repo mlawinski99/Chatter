@@ -4,7 +4,7 @@ using Core.Observability;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGateway(builder.Configuration);
-builder.AddObservability("messages-gateway");
+builder.AddObservability("users-gateway");
 
 var app = builder.Build();
 

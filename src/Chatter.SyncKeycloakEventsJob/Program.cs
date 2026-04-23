@@ -1,5 +1,6 @@
 ﻿using Core.Infrastructure;
 using Core.Logger;
+using Core.Observability;
 using Chatter.SyncKeycloakEvents.DbContexts;
 using Chatter.SyncUsersJob;
 using Core.KeycloakService;
@@ -28,13 +29,12 @@ builder.Services.AddHangfire(config =>
 
 builder.Services.AddHangfireServer();
 
-builder.Services.AddHttpClient();
-var keycloakConfig = new KeycloakConfig();
-builder.Configuration.GetSection("Keycloak").Bind(keycloakConfig);
-builder.Services.AddSingleton(keycloakConfig);
+builder.Services.Configure<KeycloakConfig>(builder.Configuration.GetSection("Keycloak"));
+builder.Services.AddKeycloakService();
 builder.Services.AddSingleton<KeycloakEventSyncService>();
 builder.Services.AddAppLogger();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.AddObservability("sync-keycloak-events-job");
 var app = builder.Build();
 
 var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();

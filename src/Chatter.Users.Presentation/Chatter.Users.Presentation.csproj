@@ -21,6 +21,7 @@
       <ProjectReference Include="..\Core\Core.Infrastructure\Core.Infrastructure.csproj" />
       <ProjectReference Include="..\Core\Core.KeycloakService\Core.KeycloakService.csproj" />
       <ProjectReference Include="..\Core\Core.Logger\Core.Logger.csproj" />
+      <ProjectReference Include="..\Core\Core.Observability\Core.Observability.csproj" />
       <ProjectReference Include="..\Core\Core.Web\Core.Web.csproj" />
       <ProjectReference Include="..\Core\Core.Migrator\Core.Migrator.csproj" />
     </ItemGroup>

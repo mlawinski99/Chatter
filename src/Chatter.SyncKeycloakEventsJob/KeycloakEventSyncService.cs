@@ -7,6 +7,7 @@ using Core.Logger;
 using Chatter.SyncKeycloakEvents.DbContexts;
 using Chatter.SyncKeycloakEventsJob;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Chatter.SyncUsersJob;
 
@@ -18,15 +19,15 @@ public class KeycloakEventSyncService
     private readonly HttpClient _httpClient;
     private readonly KeycloakConfig _config;
     private readonly string _requestUrl;
-    
-    public KeycloakEventSyncService(IHttpClientFactory httpClientFactory, 
-        KeycloakConfig config,
+
+    public KeycloakEventSyncService(IHttpClientFactory httpClientFactory,
+        IOptions<KeycloakConfig> config,
         IAppLogger<KeycloakEventSyncService> logger,
         IKeycloakService keycloakService,
         IJsonSerializer jsonSerializer)
     {
-        _httpClient = httpClientFactory.CreateClient();
-        _config = config;
+        _httpClient = httpClientFactory.CreateClient(KeycloakEndpoints.HttpClientName);
+        _config = config.Value;
         _logger = logger;
         _keycloakService = keycloakService;
         _jsonSerializer = jsonSerializer;
@@ -54,6 +55,7 @@ public class KeycloakEventSyncService
 
         foreach (var connectionString in _config.ConnectionStrings)
         {
+            string responseBody = string.Empty;
             try
             {
                 _logger.LogInformation("Starting synchronization for database: {Database}", 
@@ -74,8 +76,8 @@ public class KeycloakEventSyncService
                 {
                     // @TODO keycloak 27 - Epoch timestamp millis
                     var parsed = DateTime.Parse(keycloakLastSync.Value);
-                    var dateIso = parsed.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
-                    url += $"&dateFrom={Uri.EscapeDataString(dateIso)}";
+                    var dateOnly = parsed.ToUniversalTime().ToString("yyyy-MM-dd");
+                    url += $"&dateFrom={dateOnly}";
                 }
 
                 _logger.LogInformation("Preparing request to Keycloak...");
@@ -83,11 +85,10 @@ public class KeycloakEventSyncService
                 req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var response = await _httpClient.SendAsync(req);
+                responseBody = await response.Content.ReadAsStringAsync();
                 response.EnsureSuccessStatusCode();
-
-                var json = await response.Content.ReadAsStringAsync();
                 
-                var events = _jsonSerializer.Deserialize<List<KeycloakAdminEventDto>>(json);
+                var events = _jsonSerializer.Deserialize<List<KeycloakAdminEventDto>>(responseBody);
                 _logger.LogInformation("Events synced successfully...");
                 if (events is { Count: > 0 })
                 {
@@ -133,10 +134,16 @@ public class KeycloakEventSyncService
                 _logger.LogInformation("Event synchronization completed for database: {Database}",
                     new Npgsql.NpgsqlConnectionStringBuilder(connectionString).Database);
             }
+            catch (HttpRequestException ex)
+            {
+                var dbName = new Npgsql.NpgsqlConnectionStringBuilder(connectionString).Database;
+                _logger.LogError("HTTP error during event synchronization for: {Database}, StatusCode: {StatusCode}, Response: {Response}",
+                    dbName, ex.StatusCode, responseBody);
+            }
             catch (Exception ex)
             {
-                var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
-                _logger.LogError("Error during event synchronization for: {Database}", builder.Database, ex);
+                var dbName = new Npgsql.NpgsqlConnectionStringBuilder(connectionString).Database;
+                _logger.LogError("Error during event synchronization for: {Database} with error: {ex}", dbName, ex);
             }
         }
     }

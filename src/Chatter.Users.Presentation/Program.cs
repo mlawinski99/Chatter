@@ -5,6 +5,7 @@ using Core.DataAccessTypes;
 using Core.Infrastructure;
 using Core.KeycloakService;
 using Core.Logger;
+using Core.Observability;
 using Chatter.Users.DataAccess;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,6 +44,7 @@ builder.Services.AddSharedDataAccessTypes();
 builder.Services.AddUsersDataAccess(builder.Configuration);
 builder.Services.AddKeycloakService();
 builder.Services.AddAppLogger();
+builder.AddObservability("users-api");
 builder.Services.Configure<KeycloakConfig>(keycloakConfiguration);
 builder.Services.AddValidatorsFromAssembly(assembly);
 

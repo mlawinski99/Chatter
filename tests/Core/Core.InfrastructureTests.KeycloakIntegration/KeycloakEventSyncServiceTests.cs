@@ -6,6 +6,7 @@ using Core.Logger;
 using Chatter.SyncUsersJob;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 
@@ -35,7 +36,7 @@ public class KeycloakEventSyncServiceTests : IntegrationTestBase<KeycloakEventSy
         var logger = Substitute.For<IAppLogger<KeycloakEventSyncService>>();
         var syncService = new KeycloakEventSyncService(
             new TestHttpClientFactory(),
-            config,
+            Options.Create(config),
             logger,
             keycloakService,
             new TestJsonSerializer());
@@ -67,7 +68,7 @@ public class KeycloakEventSyncServiceTests : IntegrationTestBase<KeycloakEventSy
         var logger = Substitute.For<IAppLogger<KeycloakEventSyncService>>();
         var syncService = new KeycloakEventSyncService(
             new TestHttpClientFactory(),
-            config,
+            Options.Create(config),
             logger,
             keycloakService,
             new TestJsonSerializer());
@@ -101,7 +102,7 @@ public class KeycloakEventSyncServiceTests : IntegrationTestBase<KeycloakEventSy
         var logger = Substitute.For<IAppLogger<KeycloakEventSyncService>>();
         var syncService = new KeycloakEventSyncService(
             new TestHttpClientFactory(),
-            config,
+            Options.Create(config),
             logger,
             keycloakService,
             new TestJsonSerializer());
@@ -150,7 +151,7 @@ public class KeycloakEventSyncServiceTests : IntegrationTestBase<KeycloakEventSy
         var logger = Substitute.For<IAppLogger<KeycloakEventSyncService>>();
         var syncService = new KeycloakEventSyncService(
             new TestHttpClientFactory(),
-            config,
+            Options.Create(config),
             logger,
             keycloakService,
             new TestJsonSerializer());

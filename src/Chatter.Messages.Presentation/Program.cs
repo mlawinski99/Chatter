@@ -5,9 +5,9 @@ using Core.CQRS;
 using Core.DataAccessTypes;
 using Core.Infrastructure;
 using Core.Logger;
+using Core.Observability;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,11 +37,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .CreateLogger();
-
-builder.Host.UseSerilog();
+builder.AddObservability("messages-api");
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddLogging();
 var assembly = Assembly.Load("Chatter.Messages.Application");

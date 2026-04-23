@@ -6,6 +6,9 @@
 # macOS
 .DS_Store
 
+# Bruno API client
+bruno/
+
 # User-specific files
 *.rsuser
 *.suo

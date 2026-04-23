@@ -15,14 +15,14 @@
         <PackageReference Include="Aspire.Hosting.Kafka" Version="13.2.1" />
         <PackageReference Include="Aspire.Hosting.Keycloak" Version="13.2.1-preview.1.26180.6" />
         <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.2.1" />
-        <PackageReference Include="Elastic.Aspire.Hosting.Elasticsearch" Version="9.3.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Chatter.Keycloak.Gateaway\Chatter.Keycloak.Gateaway.csproj" />
       <ProjectReference Include="..\Chatter.Messages.Gateaway\Chatter.Messages.Gateaway.csproj" />
       <ProjectReference Include="..\Chatter.Messages.Presentation\Chatter.Messages.Presentation.csproj" />
       <ProjectReference Include="..\Chatter.SyncKeycloakEventsJob\Chatter.SyncKeycloakEventsJob.csproj" />
+      <ProjectReference Include="..\Chatter.Users.Gateaway\Chatter.Users.Gateaway.csproj" />
+      <ProjectReference Include="..\Chatter.Users.Presentation\Chatter.Users.Presentation.csproj" />
     </ItemGroup>
 
 </Project>

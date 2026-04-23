@@ -37,7 +37,7 @@ public class UsersApiFactory : WebApplicationFactory<UsersController>, IAsyncLif
             var settingsPath = Path.Combine(AppContext.BaseDirectory, "Settings", "test-settings.json");
             config.AddJsonFile(settingsPath, optional: false);
 
-            var solutionDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+            var solutionDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
             var migrationPath = Path.Combine(solutionDir, "src", "Chatter.Users.DataAccess", "Migrations");
 
             config.AddInMemoryCollection(new Dictionary<string, string?>
