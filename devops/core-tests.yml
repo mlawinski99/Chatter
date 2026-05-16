@@ -1,0 +1,38 @@
+parameters:
+  - name: buildConfiguration
+    type: string
+    default: 'Release'
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Setup .NET'
+    inputs:
+      packageType: 'sdk'
+      version: $(dotnetVersion)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Core Unit Tests'
+    inputs:
+      command: test
+      projects: 'tests/Core/Core.UnitTests.*/*.csproj'
+      arguments: >
+        --configuration ${{ parameters.buildConfiguration }}
+        --collect:"XPlat Code Coverage"
+        -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+      publishTestResults: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Core Infrastructure Tests'
+    inputs:
+      command: test
+      projects: 'tests/Core/Core.InfrastructureTests.*/*.csproj'
+      arguments: >
+        --configuration ${{ parameters.buildConfiguration }}
+        --collect:"XPlat Code Coverage"
+        -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+      publishTestResults: true
+
+  - task: PublishCodeCoverageResults@2
+    displayName: 'Publish Coverage'
+    inputs:
+      summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'

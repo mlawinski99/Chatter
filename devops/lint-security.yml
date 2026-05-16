@@ -1,0 +1,44 @@
+parameters:
+  - name: buildConfiguration
+    type: string
+    default: 'Release'
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Setup .NET'
+    inputs:
+      packageType: 'sdk'
+      version: $(dotnetVersion)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore'
+    inputs:
+      command: restore
+      projects: '**/*.csproj'
+
+  - script: dotnet format --verify-no-changes --no-restore
+    displayName: 'Check Formatting (dotnet format)'
+
+  # Roslyn analyzer
+  - script: |
+      dotnet build --configuration ${{ parameters.buildConfiguration }} \
+        --no-restore \
+        -warnaserror \
+        /p:EnforceCodeStyleInBuild=true \
+        /p:AnalysisMode=All
+    displayName: 'Roslyn Analyzers (warnings as errors)'
+
+  # Vulnerable NuGet packages
+  - script: |
+      dotnet list package --vulnerable --include-transitive 2>&1 | tee vuln.txt
+      if grep -q "has the following vulnerable packages" vuln.txt; then
+        echo "##[error] Vulnerable packages found"
+        cat vuln.txt
+        exit 1
+      fi
+    displayName: 'NuGet Vulnerability Audit'
+
+  # Deprecated Nugets warning
+  - script: dotnet list package --deprecated 2>&1
+    displayName: 'NuGet Deprecated Packages (warn only)'
+    continueOnError: true

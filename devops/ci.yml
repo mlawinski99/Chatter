@@ -1,0 +1,197 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  dotnetVersion: '10.0.x'
+  dockerRegistryServiceConnection: 'dockerhub'
+  dockerHubNamespace: '$(DOCKERHUB_NAMESPACE)'
+  tag: '$(Build.SourceBranchName)-$(Build.BuildId)'
+  isPush: $[eq(variables['Build.Reason'], 'IndividualCI')]
+
+stages:
+  # Detect what changed and what need to be build etc
+  - stage: DetectChanges
+    displayName: 'Detect Changes'
+    jobs:
+      - job: Changes
+        displayName: 'Detect Changed Paths'
+        steps:
+          - checkout: self
+            fetchDepth: 2
+
+          - script: |
+              CHANGED=$(git diff --name-only HEAD~1 HEAD)
+              echo "Changed files:"
+              echo "$CHANGED"
+
+              echo "$CHANGED" | grep -q "^src/Core/" && echo "##vso[task.setvariable variable=coreChanged;isOutput=true]true" || echo "##vso[task.setvariable variable=coreChanged;isOutput=true]false"
+              echo "$CHANGED" | grep -q "^tests/Core/" && echo "##vso[task.setvariable variable=coreTestsChanged;isOutput=true]true" || echo "##vso[task.setvariable variable=coreTestsChanged;isOutput=true]false"
+              echo "$CHANGED" | grep -q "^src/Chatter.Messages" && echo "##vso[task.setvariable variable=messagesChanged;isOutput=true]true" || echo "##vso[task.setvariable variable=messagesChanged;isOutput=true]false"
+              echo "$CHANGED" | grep -q "^tests/Chatter.IntegrationTests.Messages" && echo "##vso[task.setvariable variable=messagesTestsChanged;isOutput=true]true" || echo "##vso[task.setvariable variable=messagesTestsChanged;isOutput=true]false"
+              echo "$CHANGED" | grep -q "^src/Chatter.Users" && echo "##vso[task.setvariable variable=usersChanged;isOutput=true]true" || echo "##vso[task.setvariable variable=usersChanged;isOutput=true]false"
+              echo "$CHANGED" | grep -q "^tests/Chatter.IntegrationTests.Users" && echo "##vso[task.setvariable variable=usersTestsChanged;isOutput=true]true" || echo "##vso[task.setvariable variable=usersTestsChanged;isOutput=true]false"
+              echo "$CHANGED" | grep -q "^src/Chatter.SyncKeycloakEventsJob" && echo "##vso[task.setvariable variable=syncJobChanged;isOutput=true]true" || echo "##vso[task.setvariable variable=syncJobChanged;isOutput=true]false"
+              echo "$CHANGED" | grep -q "^src/Chatter.Shared\." && echo "##vso[task.setvariable variable=sharedChanged;isOutput=true]true" || echo "##vso[task.setvariable variable=sharedChanged;isOutput=true]false"
+            name: detect
+            displayName: 'Detect Changes'
+
+  - stage: BuildValidation
+    displayName: 'Build Validation'
+    dependsOn: DetectChanges
+    jobs:
+      - job: Build
+        displayName: 'Build Solution'
+        steps:
+          - checkout: self
+
+          - template: build-validation.yml
+            parameters:
+              buildConfiguration: $(buildConfiguration)
+
+  # Lint & Security
+  - stage: LintSecurity
+    displayName: 'Lint & Security'
+    dependsOn: DetectChanges
+    jobs:
+      - job: LintSecurity
+        displayName: 'Lint & Security'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+
+          - template: lint-security.yml
+            parameters:
+              buildConfiguration: $(buildConfiguration)
+
+  # runs when Core changed
+  - stage: CoreTests
+    displayName: 'Core Tests'
+    dependsOn:
+      - BuildValidation
+      - LintSecurity
+    variables:
+      coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
+      coreTestsChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreTestsChanged']]
+      sharedChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.sharedChanged']]
+    condition: |
+      and(
+        succeeded(),
+        or(
+          eq(variables.coreChanged, 'true'),
+          eq(variables.coreTestsChanged, 'true'),
+          eq(variables.sharedChanged, 'true')
+        )
+      )
+    jobs:
+      - job: CoreTests
+        displayName: 'Run Core Tests'
+        steps:
+          - checkout: self
+
+          - template: core-tests.yml
+            parameters:
+              buildConfiguration: $(buildConfiguration)
+
+  # run when Messages changed
+  - stage: Messages
+    displayName: 'Messages'
+    dependsOn:
+      - BuildValidation
+      - LintSecurity
+    variables:
+      coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
+      sharedChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.sharedChanged']]
+      messagesChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.messagesChanged']]
+      messagesTestsChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.messagesTestsChanged']]
+    condition: |
+      and(
+        succeeded(),
+        or(
+          eq(variables.messagesChanged, 'true'),
+          eq(variables.messagesTestsChanged, 'true'),
+          eq(variables.coreChanged, 'true'),
+          eq(variables.sharedChanged, 'true')
+        )
+      )
+    jobs:
+      - job: MessagesCI
+        displayName: 'Messages CI'
+        steps:
+          - checkout: self
+
+          - template: microservice-ci.yml
+            parameters:
+              serviceName: Messages
+              buildConfiguration: $(buildConfiguration)
+
+  # runs when Users changed
+  - stage: Users
+    displayName: 'Users'
+    dependsOn:
+      - BuildValidation
+      - LintSecurity
+    variables:
+      coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
+      sharedChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.sharedChanged']]
+      usersChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.usersChanged']]
+      usersTestsChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.usersTestsChanged']]
+    condition: |
+      and(
+        succeeded(),
+        or(
+          eq(variables.usersChanged, 'true'),
+          eq(variables.usersTestsChanged, 'true'),
+          eq(variables.coreChanged, 'true'),
+          eq(variables.sharedChanged, 'true')
+        )
+      )
+    jobs:
+      - job: UsersCI
+        displayName: 'Users CI'
+        steps:
+          - checkout: self
+
+          - template: microservice-ci.yml
+            parameters:
+              serviceName: Users
+              buildConfiguration: $(buildConfiguration)
+
+  - stage: DockerSyncJob
+    displayName: 'Docker - SyncKeycloakEventsJob'
+    dependsOn:
+      - BuildValidation
+      - LintSecurity
+    variables:
+      coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
+      sharedChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.sharedChanged']]
+      syncJobChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.syncJobChanged']]
+    condition: |
+      and(
+        succeeded(),
+        or(
+          eq(variables.syncJobChanged, 'true'),
+          eq(variables.coreChanged, 'true'),
+          eq(variables.sharedChanged, 'true')
+        )
+      )
+    jobs:
+      - job: SyncJobCI
+        displayName: 'SyncKeycloakEventsJob CI'
+        steps:
+          - checkout: self
+
+          - template: sync-job-ci.yml
+            parameters:
+              buildConfiguration: $(buildConfiguration)
