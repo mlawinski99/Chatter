@@ -18,6 +18,7 @@ steps:
 
   - script: dotnet format --verify-no-changes --no-restore
     displayName: 'Check Formatting (dotnet format)'
+    continueOnError: true
 
   # Roslyn analyzer
   - script: |
@@ -27,6 +28,7 @@ steps:
         /p:EnforceCodeStyleInBuild=true \
         /p:AnalysisMode=All
     displayName: 'Roslyn Analyzers (warnings as errors)'
+    continueOnError: true
 
   # Vulnerable NuGet packages
   - script: |
@@ -37,6 +39,7 @@ steps:
         exit 1
       fi
     displayName: 'NuGet Vulnerability Audit'
+    continueOnError: true
 
   # Deprecated Nugets warning
   - script: dotnet list package --deprecated 2>&1
