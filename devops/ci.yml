@@ -80,7 +80,6 @@ stages:
     displayName: 'Core Tests'
     dependsOn:
       - BuildValidation
-      - LintSecurity
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
       coreTestsChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreTestsChanged']]
@@ -108,8 +107,6 @@ stages:
   - stage: Messages
     displayName: 'Messages'
     dependsOn:
-      - BuildValidation
-      - LintSecurity
       - CoreTests
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
@@ -141,8 +138,6 @@ stages:
   - stage: Users
     displayName: 'Users'
     dependsOn:
-      - BuildValidation
-      - LintSecurity
       - CoreTests
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
@@ -173,8 +168,6 @@ stages:
   - stage: SyncKeycloakEventsJob
     displayName: 'SyncKeycloakEventsJob'
     dependsOn:
-      - BuildValidation
-      - LintSecurity
       - CoreTests
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]

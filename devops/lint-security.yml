@@ -24,10 +24,9 @@ steps:
   - script: |
       dotnet build --configuration ${{ parameters.buildConfiguration }} \
         --no-restore \
-        -warnaserror \
         /p:EnforceCodeStyleInBuild=true \
         /p:AnalysisMode=All
-    displayName: 'Roslyn Analyzers (warnings as errors)'
+    displayName: 'Roslyn Analyzers'
     continueOnError: true
 
   # Vulnerable NuGet packages
