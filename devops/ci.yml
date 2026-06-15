@@ -87,7 +87,7 @@ stages:
       sharedChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.sharedChanged']]
     condition: |
       and(
-        succeeded(),
+        not(failed()),
         or(
           eq(variables.coreChanged, 'true'),
           eq(variables.coreTestsChanged, 'true'),
@@ -110,6 +110,7 @@ stages:
     dependsOn:
       - BuildValidation
       - LintSecurity
+      - CoreTests
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
       sharedChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.sharedChanged']]
@@ -117,7 +118,7 @@ stages:
       messagesTestsChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.messagesTestsChanged']]
     condition: |
       and(
-        succeeded(),
+        not(failed()),
         or(
           eq(variables.messagesChanged, 'true'),
           eq(variables.messagesTestsChanged, 'true'),
@@ -142,6 +143,7 @@ stages:
     dependsOn:
       - BuildValidation
       - LintSecurity
+      - CoreTests
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
       sharedChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.sharedChanged']]
@@ -149,7 +151,7 @@ stages:
       usersTestsChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.usersTestsChanged']]
     condition: |
       and(
-        succeeded(),
+        not(failed()),
         or(
           eq(variables.usersChanged, 'true'),
           eq(variables.usersTestsChanged, 'true'),
@@ -168,18 +170,19 @@ stages:
               serviceName: Users
               buildConfiguration: $(buildConfiguration)
 
-  - stage: DockerSyncJob
-    displayName: 'Docker - SyncKeycloakEventsJob'
+  - stage: SyncKeycloakEventsJob
+    displayName: 'SyncKeycloakEventsJob'
     dependsOn:
       - BuildValidation
       - LintSecurity
+      - CoreTests
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
       sharedChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.sharedChanged']]
       syncJobChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.syncJobChanged']]
     condition: |
       and(
-        succeeded(),
+        not(failed()),
         or(
           eq(variables.syncJobChanged, 'true'),
           eq(variables.coreChanged, 'true'),
