@@ -79,6 +79,7 @@ stages:
   - stage: CoreTests
     displayName: 'Core Tests'
     dependsOn:
+      - DetectChanges
       - BuildValidation
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
@@ -88,6 +89,7 @@ stages:
       and(
         not(failed()),
         or(
+          eq(variables.runAll, 'true'),
           eq(variables.coreChanged, 'true'),
           eq(variables.coreTestsChanged, 'true'),
           eq(variables.sharedChanged, 'true')
@@ -107,6 +109,7 @@ stages:
   - stage: Messages
     displayName: 'Messages'
     dependsOn:
+      - DetectChanges
       - CoreTests
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
@@ -117,6 +120,7 @@ stages:
       and(
         not(failed()),
         or(
+          eq(variables.runAll, 'true'),
           eq(variables.messagesChanged, 'true'),
           eq(variables.messagesTestsChanged, 'true'),
           eq(variables.coreChanged, 'true'),
@@ -138,6 +142,7 @@ stages:
   - stage: Users
     displayName: 'Users'
     dependsOn:
+      - DetectChanges
       - CoreTests
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
@@ -148,6 +153,7 @@ stages:
       and(
         not(failed()),
         or(
+          eq(variables.runAll, 'true'),
           eq(variables.usersChanged, 'true'),
           eq(variables.usersTestsChanged, 'true'),
           eq(variables.coreChanged, 'true'),
@@ -168,6 +174,7 @@ stages:
   - stage: SyncKeycloakEventsJob
     displayName: 'SyncKeycloakEventsJob'
     dependsOn:
+      - DetectChanges
       - CoreTests
     variables:
       coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
@@ -177,6 +184,7 @@ stages:
       and(
         not(failed()),
         or(
+          eq(variables.runAll, 'true'),
           eq(variables.syncJobChanged, 'true'),
           eq(variables.coreChanged, 'true'),
           eq(variables.sharedChanged, 'true')
