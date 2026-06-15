@@ -82,32 +82,6 @@ stages:
             parameters:
               buildConfiguration: $(buildConfiguration)
 
-  # @TODO: Remove after pipeline is stable
-  - stage: DebugVariables
-    displayName: 'Debug Variables'
-    dependsOn:
-      - DetectChanges
-      - BuildValidation
-    variables:
-      runAll: $[variables['RUN_ALL']]
-      coreChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.coreChanged']]
-      messagesChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.messagesChanged']]
-      usersChanged: $[stageDependencies.DetectChanges.Changes.outputs['detect.usersChanged']]
-    jobs:
-      - job: Debug
-        displayName: 'Log Variables'
-        steps:
-          - checkout: none
-          - script: |
-              echo "=== Library Variables ==="
-              echo "RUN_ALL (macro):   $(RUN_ALL)"
-              echo "runAll (runtime):  $(runAll)"
-              echo "=== Stage Dependencies ==="
-              echo "coreChanged:     $(coreChanged)"
-              echo "messagesChanged: $(messagesChanged)"
-              echo "usersChanged:    $(usersChanged)"
-            displayName: 'Debug - log all variables'
-
   # runs when Core changed
   - stage: CoreTests
     displayName: 'Core Tests'
