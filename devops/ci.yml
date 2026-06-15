@@ -12,12 +12,21 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  buildConfiguration: 'Release'
-  dotnetVersion: '10.0.x'
-  dockerRegistryServiceConnection: 'dockerhub'
-  dockerHubNamespace: '$(DOCKERHUB_NAMESPACE)'
-  tag: '$(Build.SourceBranchName)-$(Build.BuildId)'
-  isPush: $[eq(variables['Build.Reason'], 'IndividualCI')]
+  - group: COMMON
+  - name: buildConfiguration
+    value: 'Release'
+  - name: dotnetVersion
+    value: '10.0.x'
+  - name: dockerRegistryServiceConnection
+    value: 'dockerhub'
+  - name: dockerHubNamespace
+    value: '$(DOCKERHUB_NAMESPACE)'
+  - name: tag
+    value: '$(Build.SourceBranchName)-$(Build.BuildId)'
+  - name: isPush
+    value: $[eq(variables['Build.Reason'], 'IndividualCI')]
+  - name: runAll
+    value: '$(RUN_ALL)'
 
 stages:
   # Detect what changed and what need to be build etc
