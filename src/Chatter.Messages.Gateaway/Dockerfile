@@ -11,7 +11,7 @@ COPY src/Core/Core.Observability/*.csproj src/Core/Core.Observability/
 RUN dotnet restore src/Chatter.Messages.Gateaway/Chatter.Messages.Gateaway.csproj
 
 COPY src/ src/
-RUN dotnet publish src/Chatter.Messages.Gateaway/Chatter.Messages.Gateaway.csproj -c Release -o /app/publish
+RUN dotnet publish src/Chatter.Messages.Gateaway/Chatter.Messages.Gateaway.csproj -c Release -o /app/publish --no-restore
 
 FROM base AS final
 WORKDIR /app
